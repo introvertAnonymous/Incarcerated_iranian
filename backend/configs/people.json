@@ -1,0 +1,55 @@
+{
+  "properties": {
+    "update_dt": {
+      "type": "date"
+    },
+    "uri": {
+      "type": "keyword"
+    },
+    "wikidata": {
+      "type": "keyword"
+    },
+    "detention_datetime": {
+      "type": "date"
+    },
+    "context": {
+      "properties": {
+        "en": { "type": "text" },
+        "fa": { "type": "text" }
+      }
+    },
+    "name": {
+      "type": "search_as_you_type",
+      "fields": {
+        "keyword": {
+          "type": "keyword"
+        }
+      }
+    },
+    "image": {
+      "type": "keyword"
+    },
+    "status": {
+      "type": "keyword"
+    },
+    "tweets": {
+      "type": "keyword"
+    },
+    "recent_tweets_hist": {
+      "properties": {
+        "start": { "type": "date" },
+        "end": { "type": "date" },
+        "tweet_count": { "type": "integer" }
+      }
+    },
+    "recent_tweets_count": { "type": "integer" },
+    "recent_tweets_hist_verified": {
+      "properties": {
+        "start": { "type": "date" },
+        "end": { "type": "date" },
+        "tweet_count": { "type": "integer" }
+      }
+    },
+    "recent_tweets_count_verified": { "type": "integer" }
+  }
+}

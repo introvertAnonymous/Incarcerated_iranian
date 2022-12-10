@@ -1,0 +1,4 @@
+.vscode
+data
+*.egg-info
+notebooks
