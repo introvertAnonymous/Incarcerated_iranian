@@ -21,6 +21,7 @@ export const PeopleListResults = ({ ...rest }) => {
   const [page, setPage] = useState(0);
   const [people, setPeople] = useState([])
   const [countPeople, setCountPeople] = useState(10);
+  const [sortDirection, setSortDirection] = useState("asc");
   useEffect(() => {
     const options = {
       method: 'GET',
@@ -48,10 +49,10 @@ export const PeopleListResults = ({ ...rest }) => {
         'Authorization': `Bearer ${fetchToken()}`,
       },
     };
-    fetch(`http://localhost:8000/items/items?size=${limit}&offset=${page * limit}&sort=recent_tweets_count`, options = options)
+    fetch(`http://localhost:8000/items/items?size=${limit}&offset=${page * limit}&sort=recent_tweets_count&asc=${sortDirection == 'asc'}`, options = options)
       .then(response => response.json())
       .then(data => { setPeople(data); })
-  }, [limit, page])
+  }, [limit, page, sortDirection])
 
   const handleLimitChange = (event) => {
     setLimit(event.target.value);
@@ -60,6 +61,16 @@ export const PeopleListResults = ({ ...rest }) => {
   const handlePageChange = (event, newPage) => {
     setPage(newPage);
   };
+  const handleChangeSortDirection = () => {
+
+    if (sortDirection == "asc") {
+      setSortDirection("desc")
+    } else {
+      setSortDirection("asc")
+    }
+
+  }
+  console.log("sort", sortDirection);
 
   return (
     <Card {...rest}>
@@ -80,10 +91,10 @@ export const PeopleListResults = ({ ...rest }) => {
                 <TableCell>
                   City
                 </TableCell>
-                <TableCell>
+                <TableCell onClick={handleChangeSortDirection}>
                   <TableSortLabel
                     active
-                    direction="asc"
+                    direction={sortDirection}
                   >
                     Recent Tweets
                   </TableSortLabel>
