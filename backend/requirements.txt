@@ -1,3 +1,5 @@
 tweepy
 tqdm
 elasticsearch
+wikibaseintegrator
+pydantic

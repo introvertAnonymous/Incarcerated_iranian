@@ -23,7 +23,7 @@ const Page = () => {
       },
     };
     if (wiki_id) {
-      fetch(`http://localhost:8000/items/item?wiki_id=${wiki_id}`, options = options)
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/item?wiki_id=${wiki_id}`, options = options)
         .then(response => response.json())
         .then(data => { setValues(data); })
     }

@@ -28,7 +28,7 @@ const Login = () => {
         headers: { accept: "application/json", "Content-Type": "application/x-www-form-urlencoded" },
         body: `grant_type=&username=${event.email}&password=${event.password}&scope=&client_id=&client_secret=`
       };
-      fetch("http://localhost:8000/auth/access-token", options = options).then(response => response.json()).then(resp => {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/access-token`, options = options).then(response => response.json()).then(resp => {
         if (resp.access_token) {
           setToken(resp.access_token);
           Router

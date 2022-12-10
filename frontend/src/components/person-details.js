@@ -122,7 +122,7 @@ export const PersonDetails = (props) => {
       },
       body: JSON.stringify(values)
     };
-    fetch(`http://localhost:8000/items/update`, options = options,)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/update`, options = options,)
       .then(response => response.json())
       .then(data => { console.log(data); }).catch(err => console.error(err))
   }

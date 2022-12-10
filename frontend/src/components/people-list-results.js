@@ -33,7 +33,7 @@ export const PeopleListResults = ({ ...rest }) => {
         'Authorization': `Bearer ${fetchToken()}`,
       },
     };
-    fetch(`http://localhost:8000/items/count`, options = options)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/count`, options = options)
       .then(response => response.json())
       .then(data => { setCountPeople(data); })
   }, []);
@@ -49,7 +49,7 @@ export const PeopleListResults = ({ ...rest }) => {
         'Authorization': `Bearer ${fetchToken()}`,
       },
     };
-    fetch(`http://localhost:8000/items/items?size=${limit}&offset=${page * limit}&sort=recent_tweets_count&asc=${sortDirection == 'asc'}`, options = options)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/items?size=${limit}&offset=${page * limit}&sort=recent_tweets_count&asc=${sortDirection == 'asc'}`, options = options)
       .then(response => response.json())
       .then(data => { setPeople(data); })
   }, [limit, page, sortDirection])

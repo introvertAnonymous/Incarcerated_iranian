@@ -8,7 +8,6 @@ from wikibaseintegrator.datatypes import Item as WikiItem, String, Quantity, Tim
 from wikibaseintegrator.wbi_config import config as wbi_config
 from wikibaseintegrator.wbi_enums import ActionIfExists
 import tweepy
-import uuid
 from incarcerated_api.constants import (
     WIKI_CLIENT_APPLICATION_KEY,
     WIKI_CLIENT_APPLICATION_SECRET,
@@ -28,33 +27,39 @@ from incarcerated_api.pydantic_types import (
     TweetHist,
 )
 from incarcerated_api.constants import status_dict
+import logging
 
 spceial_utf_reg = re.compile("[\u200a-\uFFFF]+")
 wbi_config[
     "USER_AGENT"
 ] = "MyWikibaseBot/1.0 (https://www.wikidata.org/wiki/User:IntrovertAnonymous)"
 today = datetime.now().strftime("%Y-%m-%dT00:00:00Z")
-# # login object
-login_instance = wbi_login.OAuth2(
-    consumer_token=WIKI_CLIENT_APPLICATION_KEY,
-    consumer_secret=WIKI_CLIENT_APPLICATION_SECRET,
-)
 
-wbi = WikibaseIntegrator(login=login_instance)
+try:
+    login_instance = wbi_login.OAuth2(
+        consumer_token=WIKI_CLIENT_APPLICATION_KEY,
+        consumer_secret=WIKI_CLIENT_APPLICATION_SECRET,
+    )
 
+    wbi = WikibaseIntegrator(login=login_instance)
+except:
+    logging.warning("Could not load wikidata instace. You can't edit wikidata objects")
 
-auth = tweepy.OAuth1UserHandler(
-    CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET
-)
-tweepy_api = tweepy.API(auth)
-tweepy_client = tweepy.Client(
-    BEARER_TOKEN,
-    CONSUMER_KEY,
-    CONSUMER_SECRET,
-    ACCESS_TOKEN,
-    ACCESS_TOKEN_SECRET,
-    wait_on_rate_limit=True,
-)
+try:
+    auth = tweepy.OAuth1UserHandler(
+        CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET
+    )
+    tweepy_api = tweepy.API(auth)
+    tweepy_client = tweepy.Client(
+        BEARER_TOKEN,
+        CONSUMER_KEY,
+        CONSUMER_SECRET,
+        ACCESS_TOKEN,
+        ACCESS_TOKEN_SECRET,
+        wait_on_rate_limit=True,
+    )
+except:
+    logging.warning("Could not load tweepy. You can't get tweets")
 
 
 def get_wikidata_item(wiki_id):

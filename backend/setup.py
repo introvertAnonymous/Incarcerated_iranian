@@ -14,7 +14,7 @@ def get_version():
     return locals()["__version__"]
 
 
-with open(os.path.join(here, "../Readme.md")) as f:
+with open(os.path.join(here, "Readme.md")) as f:
     readme = f.read()
 
 with open(os.path.join(here, "requirements.txt")) as fh:

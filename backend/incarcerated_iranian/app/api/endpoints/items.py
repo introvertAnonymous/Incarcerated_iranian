@@ -1,4 +1,3 @@
-import json
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import delete, select
@@ -30,7 +29,6 @@ async def get_item(
 ):
     try:
         item = es.get(index="people", id=wiki_id).body.get("_source")
-        print("item", item)
         return get_people_item(item)
     except Exception as e:
         return {"Error": str(e)}
