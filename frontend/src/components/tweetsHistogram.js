@@ -18,7 +18,7 @@ export const TweetHistogram = ({ recent_tweets_hist_verified, recent_tweets_hist
         borderRadius: 4,
         categoryPercentage: 0.5,
         data: recent_tweets_hist_verified.map(p => p.tweet_count),
-        label: `Verified tweets [${recent_tweets_hist_verified.reduce((a, b) => a + b.tweet_count, 0)}]`,
+        label: `Tweets from verified accounts [${recent_tweets_hist_verified.reduce((a, b) => a + b.tweet_count, 0)}]`,
         maxBarThickness: 10
       },
       {

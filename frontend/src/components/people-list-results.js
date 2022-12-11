@@ -132,7 +132,7 @@ export const PeopleListResults = ({ ...rest }) => {
                       {person.status.value || "نامعلوم"}
                     </TableCell>
                     <TableCell>
-                      {person.city?.value?.fa || "نامعلوم"}
+                      {person.city || "نامعلوم"}
                     </TableCell>
                     <TableCell>
                       {person.recent_tweets_count}
