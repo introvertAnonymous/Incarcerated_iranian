@@ -14,7 +14,6 @@ import {
   TableSortLabel,
   Typography
 } from '@mui/material';
-import { fetchToken } from '../lib/auth';
 
 export const PeopleListResults = ({ ...rest }) => {
   const [limit, setLimit] = useState(10);
@@ -30,7 +29,6 @@ export const PeopleListResults = ({ ...rest }) => {
         'Content-Type': 'application/json',
         'Origin': '',
         'Host': 'localhost:8000',
-        'Authorization': `Bearer ${fetchToken()}`,
       },
     };
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/count`, options = options)
@@ -46,7 +44,6 @@ export const PeopleListResults = ({ ...rest }) => {
         'Content-Type': 'application/json',
         'Origin': '',
         'Host': 'localhost:8000',
-        'Authorization': `Bearer ${fetchToken()}`,
       },
     };
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/items?size=${limit}&offset=${page * limit}&sort=recent_tweets_count&asc=${sortDirection == 'asc'}`, options = options)
@@ -70,7 +67,6 @@ export const PeopleListResults = ({ ...rest }) => {
     }
 
   }
-  console.log("sort", sortDirection);
 
   return (
     <Card {...rest}>
@@ -79,9 +75,9 @@ export const PeopleListResults = ({ ...rest }) => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>
+                {/* <TableCell>
                   Wikidata
-                </TableCell>
+                </TableCell> */}
                 <TableCell>
                   Name
                 </TableCell>
@@ -105,16 +101,16 @@ export const PeopleListResults = ({ ...rest }) => {
             <TableBody>
               {people.slice(0, limit).map((person) => (
                 <NextLink
-                  key={person.wikidata}
-                  href={"/person?wikidata=" + String(person.wikidata)}
+                  key={person.uri}
+                  href={"/person?uri=" + String(person.uri)}
                   passHref
                 >
                   <TableRow
                     hover
-                    key={person.wikidata}
+                    key={person.uri}
                     style={{ cursor: "pointer" }}
                   >
-                    <TableCell>
+                    {/* <TableCell>
                       <Box
                         sx={{
                           alignItems: 'center',
@@ -128,7 +124,7 @@ export const PeopleListResults = ({ ...rest }) => {
                           {person.wikidata}
                         </Typography>
                       </Box>
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell>
                       {person.name.fa}
                     </TableCell>

@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import Router from 'next/router';
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -7,25 +9,32 @@ import {
   CardHeader,
   Divider,
   Grid,
+  Snackbar,
   TextField
 } from '@mui/material';
 
 import Chip from '@mui/material/Chip';
 import { Wikidata as WikidataLogo } from '../icons/wikidata'
-import { TweetHistogram } from './dashboard/tweetsHistogram';
+import { TweetHistogram } from './tweetsHistogram';
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
-import cities from '../city_info.json';
 import { fetchToken } from '../lib/auth';
 
 
 
 const genders = [{ id: "Q6581097", value: { en: "male", fa: "مذکر" } }, { id: "Q6581072", value: { en: "female", fa: "مؤنث" } }, { id: "unknown", value: { fa: "نامعلوم", en: "Unknown" } }]
-const stauses = [{ id: "زندانی", value: { en: "In Jail", fa: "زندانی" } }, { id: "آزاد شد", value: { en: "Free", fa: "آزاد" } }, { id: "مفقود", value: { fa: "نامعلوم", en: "Unknown" } },]
+const stauses = [{ id: "زندانی", value: { en: "In Jail", fa: "زندانی" } },
+{ id: "آزاد شد", value: { en: "Free", fa: "آزاد" } },
+{ id: "مفقود", value: { fa: "نامعلوم", en: "Unknown" } },
+{ id: "در بازداشت کشته شد", value: { fa: "در بازداشت کشته شد", en: "Killed in prison" } },
+{ id: "حکم اعدام", value: { fa: "حکم اعدام", en: "Death Penalty" } }]
 const ListItem = styled('li')(({ theme }) => ({
   margin: theme.spacing(0.5),
 }));
 export const PersonDetails = (props) => {
+  const [saveSuccessOpen, setSaveSuccessOpen] = useState(false);
+  const [saveFailOpen, setSaveFailsOpen] = useState(false);
+
   const [values, setValues] = useState(
     props.values
 
@@ -83,7 +92,7 @@ export const PersonDetails = (props) => {
   };
   const changeCity = (event) => {
     const c = event.target.value;
-    setValues({ ...values, city: cities.find((p) => p.id === c) });
+    setValues({ ...values, city: c });
   }
   const changeGender = (event) => {
     const c = event.target.value;
@@ -92,11 +101,11 @@ export const PersonDetails = (props) => {
   }
   const changeStatus = (event) => {
     const c = event.target.value;
-    setValues({ ...values, status: stauses.find((p) => p.id === c) });
+    setValues({ ...values, status: { value: c } });
 
   }
   const handleDelete = (data) => {
-    setValues({ ...values, hashtags: values.hashtags.filter(k => k.value !== data.value) })
+    setValues({ ...values, hashtags: values.hashtags.filter(k => k !== data) })
   }
 
   const handleClick = (wikidata) => {
@@ -105,12 +114,36 @@ export const PersonDetails = (props) => {
   const handleNewHashtag = (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
-      setValues(past => ({ ...past, hashtags: [...(past.hashtags || []), { value: newHashtag }] }));
+      setValues(past => ({ ...past, hashtags: [...(past.hashtags || []), newHashtag] }));
       setNewHashtag("");
 
     }
   }
+  const handleSaveClick = (status) => {
+    if (status == "success") {
+      setSaveSuccessOpen(true);
+    } else if (status == "fail") {
+      setSaveFailsOpen(true);
+    }
+
+  };
+
+  const handleSaveClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSaveSuccessOpen(false);
+    setSaveFailsOpen(false);
+  };
   const handleSaveDetails = (event) => {
+    if (!fetchToken()) {
+      Router
+        .push('/login')
+        .catch(console.error);
+      handleSaveClick("fail");
+      return;
+    }
     const options = {
       method: 'POST',
       headers: {
@@ -124,7 +157,7 @@ export const PersonDetails = (props) => {
     };
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/update`, options = options,)
       .then(response => response.json())
-      .then(data => { console.log(data); }).catch(err => console.error(err))
+      .then(data => { handleSaveClick("success"); }).catch(err => { console.error(err); handleSaveClick("fail"); })
   }
   return (
     <Card>
@@ -235,19 +268,19 @@ export const PersonDetails = (props) => {
               label="City"
               name="city"
               onChange={changeCity}
-              select
+              // select
               SelectProps={{ native: true }}
-              value={values?.city?.id ? values.city.id : "unknown"}
+              value={values.city || "Unknown"}
               variant="outlined"
             >
-              {cities.map((option) => (
+              {/* {cities.map((option) => (
                 <option
                   key={option.id}
                   value={option.id}
                 >
                   {option.value.fa}
                 </option>
-              ))}
+              ))} */}
             </TextField>
           </Grid>
           <Grid
@@ -287,7 +320,7 @@ export const PersonDetails = (props) => {
               onChange={changeStatus}
               select
               SelectProps={{ native: true }}
-              value={values?.status?.id ? values.status.id : "unknown"}
+              value={values?.status?.value ? values.status.value : "unknown"}
               variant="outlined"
             >
               {stauses.map((option) => (
@@ -353,9 +386,9 @@ export const PersonDetails = (props) => {
               }}
               component="ul"
             >
-              {values.hashtags?.map(data => <ListItem key={data.tweet_id?.length > 0 ? data.tweet_id[0] : data.value}>
+              {values.hashtags?.map(data => <ListItem key={data}>
                 <Chip
-                  label={data.value}
+                  label={data}
                   onDelete={() => handleDelete(data)}
                 />
               </ListItem>)
@@ -369,42 +402,6 @@ export const PersonDetails = (props) => {
           >
             <TweetHistogram recent_tweets_hist={values.recent_tweets_hist}
               recent_tweets_hist_verified={values.recent_tweets_hist_verified || []} />
-          </Grid>
-          <Grid
-            item
-            md={12}
-            xs={12}
-          >
-            <TextField
-              fullWidth
-              label="Context in English"
-              helperText="Any contextual information for spreading the information"
-              name="contextEnglish"
-              multiline
-              maxRows={4}
-              onChange={handleChange}
-              required
-              value={values?.context?.en || "Unknown"}
-              variant="outlined"
-            />
-          </Grid>
-          <Grid
-            item
-            md={12}
-            xs={12}
-          >
-            <TextField
-              fullWidth
-              label="Context in Persian"
-              helperText="توضیحات اضافه که در شبکه‌های اجتماعی یافت می‌شود"
-              name="contextPersian"
-              multiline
-              maxRows={4}
-              onChange={handleChange}
-              required
-              value={values?.context?.fa || "نامعلوم"}
-              variant="outlined"
-            />
           </Grid>
         </Grid>
       </CardContent>
@@ -424,6 +421,24 @@ export const PersonDetails = (props) => {
           Save details
         </Button>
       </Box>
+      <Snackbar open={saveSuccessOpen}
+        autoHideDuration={6000}
+        onClose={handleSaveClose}>
+        <Alert onClose={handleSaveClose}
+          severity="success"
+          sx={{ width: '100%' }}>
+          Succesfully stored in db!
+        </Alert>
+      </Snackbar>
+      <Snackbar open={saveFailOpen}
+        autoHideDuration={6000}
+        onClose={handleSaveClose}>
+        <Alert onClose={handleSaveClose}
+          severity="error"
+          sx={{ width: '100%' }}>
+          Couldnt store into db. Check the console!
+        </Alert>
+      </Snackbar>
     </Card>
   );
 };

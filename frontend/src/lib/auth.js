@@ -11,15 +11,15 @@ export const fetchToken = () => {
 }
 
 
-export function RequireToken({ children }) {
+// export function RequireToken({ children }) {
 
-  const auth = fetchToken()
-  if (!auth) {
-    Router
-      .push('/login')
-      .catch(console.error);
-    return;
-  }
+//   const auth = fetchToken()
+//   if (!auth) {
+//     Router
+//       .push('/login')
+//       .catch(console.error);
+//     return;
+//   }
 
-  return children;
-}
+//   return children;
+// }

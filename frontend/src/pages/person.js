@@ -4,13 +4,12 @@ import { PersonDetails } from '../components/person-details';
 import { DashboardLayout } from '../components/dashboard-layout';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { RequireToken, fetchToken } from '../lib/auth'
 
 
 const Page = () => {
   const [values, setValues] = useState();
   const router = useRouter();
-  const wiki_id = router.query.wikidata;
+  const uri = router.query.uri;
   useEffect(() => {
     const options = {
       method: 'GET',
@@ -19,18 +18,17 @@ const Page = () => {
         'Content-Type': 'application/json',
         'Origin': '',
         'Host': 'localhost:8000',
-        'Authorization': `Bearer ${fetchToken()}`,
       },
     };
-    if (wiki_id) {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/item?wiki_id=${wiki_id}`, options = options)
+    if (uri) {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/item?uri=${uri}`, options = options)
         .then(response => response.json())
         .then(data => { setValues(data); })
     }
-  }, [wiki_id])
+  }, [uri])
 
-  const name = values?.name?.en || values?.name?.fa || "Unknown name!";
-  return <RequireToken>
+  const name = values?.name?.en || values?.name?.fa || "Loading ...";
+  return <>
     <Head>
       <title>
         Person | {name}
@@ -60,13 +58,13 @@ const Page = () => {
             md={6}
             xs={12}
           >
-            {values && <PersonDetails wiki_id={wiki_id}
+            {values && <PersonDetails uri={uri}
               values={values} />}
           </Grid>
         </Grid>
       </Container>
     </Box>
-  </RequireToken>;
+  </>;
 };
 
 Page.getLayout = (page) => (

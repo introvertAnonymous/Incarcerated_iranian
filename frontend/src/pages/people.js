@@ -3,11 +3,9 @@ import { Box, Container } from '@mui/material';
 import { PeopleListResults } from '../components/people-list-results';
 import { CustomerListToolbar } from '../components/people-list-toolbar';
 import { DashboardLayout } from '../components/dashboard-layout';
-import { useState } from 'react';
 
 
 const Page = () => {
-  const [search, setSearch] = useState("");
   return (<>
     <Head>
       <title>
@@ -22,8 +20,7 @@ const Page = () => {
       }}
     >
       <Container maxWidth={false}>
-        <CustomerListToolbar search={search}
-          setSearch={setSearch} />
+        <CustomerListToolbar />
         <Box sx={{ mt: 3 }}>
           <PeopleListResults />
         </Box>

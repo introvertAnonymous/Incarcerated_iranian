@@ -6,34 +6,70 @@
     "uri": {
       "type": "keyword"
     },
-    "wikidata": {
-      "type": "keyword"
+    "detention_datetime": { "type": "date" },
+    "date_of_birth": { "type": "date" },
+    "date_of_death": { "type": "date" },
+    "city": {
+      "type": "text",
+      "fields": {
+        "keyword": { "type": "keyword" }
+      }
     },
-    "detention_datetime": {
-      "type": "date"
+    "gender": {
+      "properties": {
+        "id": { "type": "keyword" },
+        "value": {
+          "properties": {
+            "en": {
+              "type": "text",
+              "fields": { "keyword": { "type": "keyword" } }
+            },
+            "fa": {
+              "type": "text",
+              "fields": { "keyword": { "type": "keyword" } }
+            }
+          }
+        }
+      }
     },
-    "context": {
+    "description": {
       "properties": {
         "en": { "type": "text" },
         "fa": { "type": "text" }
       }
     },
     "name": {
-      "type": "search_as_you_type",
-      "fields": {
-        "keyword": {
-          "type": "keyword"
+      "properties": {
+        "fa": {
+          "type": "search_as_you_type",
+          "fields": {
+            "keyword": {
+              "type": "keyword"
+            }
+          }
+        },
+        "en": {
+          "type": "search_as_you_type",
+          "fields": {
+            "keyword": {
+              "type": "keyword"
+            }
+          }
         }
       }
     },
-    "image": {
-      "type": "keyword"
-    },
     "status": {
-      "type": "keyword"
+      "properties": {
+        "value": { "type": "keyword" },
+        "date": { "type": "date" }
+      }
     },
-    "tweets": {
-      "type": "keyword"
+    "hashtags": { "type": "keyword" },
+    "social_media": {
+      "properties": {
+        "twitter": { "type": "keyword" },
+        "instagram": { "type": "keyword" }
+      }
     },
     "recent_tweets_hist": {
       "properties": {

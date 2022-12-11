@@ -18,13 +18,13 @@ export const InPrisons = (props) => (
             gutterBottom
             variant="overline"
           >
-            In Prisons
+            {props.name}
           </Typography>
           <Typography
             color="textPrimary"
             variant="h4"
           >
-            15k
+            {props.value}
           </Typography>
         </Grid>
         <Grid item>
@@ -39,7 +39,7 @@ export const InPrisons = (props) => (
           </Avatar>
         </Grid>
       </Grid>
-      <Box
+      {/* <Box
         sx={{
           pt: 2,
           display: 'flex',
@@ -62,7 +62,7 @@ export const InPrisons = (props) => (
         >
           Since last month
         </Typography>
-      </Box>
+      </Box> */}
     </CardContent>
   </Card>
 );

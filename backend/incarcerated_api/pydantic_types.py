@@ -45,21 +45,31 @@ class TweetHist(BaseModel):
 
 
 class Item(BaseModel):
-    wikidata: str
+    uri: str
     name: Label
+    updated_at: datetime
+    detention_datetime: Optional[datetime]
+    wikidata: Optional[str]
     description: Optional[Label]
-    context: Optional[Label]
     date_of_birth: Optional[DateLabel]
     date_of_death: Optional[DateLabel]
-    city: Optional[WikidataItem]
+    city: Optional[str]
     gender: Optional[WikidataItem]
     status: Optional[Status]
     social_media: Optional[SocialMdedia]
     news: Optional[List[str]]
-    hashtags: Optional[List[Hashtag]]
-    wikipedia: Optional[str]
-    twitter_moment: Optional[List[str]]
+    hashtags: Optional[List[str]]
     recent_tweets_hist: Optional[List[TweetHist]]
     recent_tweets_count: Optional[int]
     recent_tweets_hist_verified: Optional[List[TweetHist]]
     recent_tweets_count_verified: Optional[int]
+
+
+class StatTerm(BaseModel):
+    key: str
+    doc_count: int
+
+
+class CityDist(BaseModel):
+    prison: List[StatTerm]
+    free: List[StatTerm]
