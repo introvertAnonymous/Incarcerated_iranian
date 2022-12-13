@@ -19,3 +19,4 @@ status_dict = {
 
 ELASTIC_URL = os.getenv("ELASTIC_URL")
 ELASTIC_PASSWORD = os.getenv("ELASTIC_PASSWORD")
+ELASTIC_INDEX = "people"

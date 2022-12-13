@@ -1,6 +1,6 @@
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import streaming_bulk
-from incarcerated_api.constants import ELASTIC_PASSWORD, ELASTIC_URL
+from incarcerated_api.constants import ELASTIC_INDEX, ELASTIC_PASSWORD, ELASTIC_URL
 from tqdm import tqdm
 
 
@@ -41,3 +41,12 @@ def bulk_insert(
     ):
         if pbar:
             pbar.update(1)
+
+
+def insert_array_to_elastic(es, array, index_name=ELASTIC_INDEX):
+    def load_job():
+        for d in array:
+            d["_id"] = d["uri"]
+            yield d
+
+    bulk_insert(es, index_name=index_name, load_job=load_job, no_of_docs=len(array))

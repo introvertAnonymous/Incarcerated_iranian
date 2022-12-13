@@ -33,4 +33,5 @@ COPY ./incarcerated_iranian/pyproject.toml .
 # Nginx unit config and init.sh will be consumed at container startup.
 COPY ./incarcerated_iranian/init.sh /docker-entrypoint.d/init.sh
 COPY ./incarcerated_iranian/nginx-unit-config.json /docker-entrypoint.d/config.json
+#COPY ./cert/bundle.pem /docker-entrypoint.d/bundle.pem
 RUN chmod a+x /docker-entrypoint.d/init.sh

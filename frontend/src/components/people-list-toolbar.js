@@ -46,7 +46,6 @@ export const CustomerListToolbar = (props) => (
         <Button
           color="primary"
           variant="contained"
-          disabled
         >
           Add new person
         </Button>

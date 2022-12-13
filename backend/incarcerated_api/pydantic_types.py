@@ -49,6 +49,8 @@ class Item(BaseModel):
     name: Label
     updated_at: datetime
     detention_datetime: Optional[datetime]
+    age: Optional[int]
+    external_links: Optional[str]
     wikidata: Optional[str]
     description: Optional[Label]
     date_of_birth: Optional[DateLabel]

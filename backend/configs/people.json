@@ -6,6 +6,12 @@
     "uri": {
       "type": "keyword"
     },
+    "age": {
+      "type": "int",
+      "fields": {
+        "keyword": { "type": "keyword" }
+      }
+    },
     "detention_datetime": { "type": "date" },
     "date_of_birth": { "type": "date" },
     "date_of_death": { "type": "date" },

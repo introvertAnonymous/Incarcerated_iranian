@@ -29,7 +29,6 @@ export const DashboardSidebar = (props) => {
     defaultMatches: true,
     noSsr: false
   });
-
   useEffect(
     () => {
       if (!router.isReady) {

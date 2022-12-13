@@ -2,6 +2,7 @@ import json
 import re
 from datetime import datetime
 from typing import Dict, List
+import uuid
 from incarcerated_api.enums import StatusEnum
 from wikibaseintegrator import wbi_login, WikibaseIntegrator
 from wikibaseintegrator.datatypes import Item as WikiItem, String, Quantity, Time, URL
@@ -81,6 +82,15 @@ def get_count_hist(hashtag: str, is_verified=False) -> List[Dict[str, str | int]
         query += " is:verified"
     result = tweepy_client.get_recent_tweets_count(query, granularity="day")
     return result.data
+
+
+def merge_tweet_hists(past, current):
+    starts = [d["start"].split("T")[0] for d in past[:-1]]
+    new_hists = []
+    for h in current:
+        if h["start"].split("T")[0] not in starts:
+            new_hists.append(h)
+    return past[:-1] + new_hists
 
 
 def get_label(label):
@@ -222,3 +232,7 @@ def convert_to_elastic(item: Item):
         ],
         "recent_tweets_count_verified": item.recent_tweets_count_verified,
     }
+
+
+def get_uri(name, city=""):
+    return uuid.uuid3(uuid.NAMESPACE_DNS, name + city).__hash__()

@@ -34,6 +34,7 @@
     "react-dom": "18.2.0",
     "react-perfect-scrollbar": "1.5.8",
     "react-router-dom": "^6.4.4",
+    "react-twitter-embed": "^4.0.4",
     "uuid": "9.0.0",
     "yup": "0.32.11"
   },
