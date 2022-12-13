@@ -9,7 +9,7 @@ email-validator==1.2.1; python_version >= "3.7" and python_full_version < "3.0.0
 fastapi==0.85.0; python_version >= "3.7"
 greenlet==1.1.2; python_version >= "3" and python_full_version < "3.0.0" and (platform_machine == "aarch64" or platform_machine == "ppc64le" or platform_machine == "x86_64" or platform_machine == "amd64" or platform_machine == "AMD64" or platform_machine == "win32" or platform_machine == "WIN32") and (python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0") and (python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.7") or python_version >= "3" and (platform_machine == "aarch64" or platform_machine == "ppc64le" or platform_machine == "x86_64" or platform_machine == "amd64" or platform_machine == "AMD64" or platform_machine == "win32" or platform_machine == "WIN32") and (python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0") and python_full_version >= "3.5.0" and (python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.7")
 idna==3.3; python_version >= "3.7" and python_full_version >= "3.6.2"
-mako==1.2.2; python_version >= "3.7"
+mako>=1.2.2; python_version >= "3.7"
 markupsafe==2.1.1; python_version >= "3.7"
 passlib==1.7.4
 pycparser==2.21
