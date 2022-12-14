@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
@@ -9,11 +10,15 @@ from app.core.security import get_password_hash
 from app.models import User
 from app.schemas.requests import UserCreateRequest, UserUpdatePasswordRequest
 from app.schemas.responses import UserResponse
-from incarcerated_api.pydantic_types import CityDist, Item, StatTerm
-from incarcerated_api.constants import DATA_PATH
+from incarcerated_api.pydantic_types import CityDist, Item, ItemCreate, StatTerm
+from incarcerated_api.constants import DATA_PATH, ELASTIC_INDEX
 from incarcerated_api.utils.elastic import get_es_client
-from incarcerated_api.utils import convert_to_elastic, get_item as get_people_item
-from incarcerated_api.utils import update_wiki_item
+from incarcerated_api.utils import (
+    convert_to_elastic,
+    get_item as get_people_item,
+    get_uri,
+)
+from incarcerated_api.utils import today
 
 
 router = APIRouter()
@@ -37,6 +42,7 @@ async def get_item(
 @router.get("/items", response_model=List[Item])
 async def get_items(
     size: int,
+    search: str = "",
     offset: int = 0,
     sort: str = None,
     asc: bool = True,
@@ -44,9 +50,28 @@ async def get_items(
     session: AsyncSession = Depends(deps.get_session),
 ):
     sort_key = [{sort: {"order": "asc" if asc else "desc"}}] if sort else None
+    query = None
+    if search:
+        query = {
+            "multi_match": {
+                "query": search,
+                "type": "bool_prefix",
+                "fields": [
+                    "name.fa",
+                    "name.en",
+                    "name.fa._2gram",
+                    "name.en._3gram",
+                    "name.fa._index_prefix",
+                    "name.en._index_prefix",
+                ],
+                "operator": "or",
+            }
+        }
     selected = [
         d.get("_source")
-        for d in es.search(index="people", size=size, from_=offset, sort=sort_key)
+        for d in es.search(
+            index="people", size=size, from_=offset, sort=sort_key, query=query
+        )
         .body.get("hits", {})
         .get("hits", [])
     ]
@@ -119,6 +144,18 @@ async def update_item(
 ):
 
     es.update(index="people", id=item.uri, doc=json.loads(item.json()))
+    return item
+
+
+@router.post("/create", response_model=Item)
+async def create_item(
+    item: ItemCreate,
+    current_user: User = Depends(deps.get_current_user),
+    session: AsyncSession = Depends(deps.get_session),
+):
+    uri = get_uri(item.name.fa, item.city or "")
+    item = Item.parse_obj({"uri": uri, "updated_at": datetime.now(), **item.dict()})
+    es.create(index=ELASTIC_INDEX, id=item.uri, document=json.loads(item.json()))
     return item
 
 

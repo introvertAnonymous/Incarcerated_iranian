@@ -3,10 +3,11 @@ import { Box, Container } from '@mui/material';
 import { PeopleListResults } from '../components/people-list-results';
 import { CustomerListToolbar } from '../components/people-list-toolbar';
 import { DashboardLayout } from '../components/dashboard-layout';
+import { RecoilRoot } from 'recoil';
 
 
 const Page = () => {
-  return (<>
+  return (<RecoilRoot>
     <Head>
       <title>
         People
@@ -26,7 +27,7 @@ const Page = () => {
         </Box>
       </Container>
     </Box>
-  </>)
+  </RecoilRoot>)
 }
 
 Page.getLayout = (page) => (

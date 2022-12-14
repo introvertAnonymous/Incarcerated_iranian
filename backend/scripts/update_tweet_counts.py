@@ -15,19 +15,28 @@ pbar = tqdm(people_data["hits"]["hits"])
 results = []
 for data in pbar:
     data = data["_source"]
-    pbar.set_description(data["uri"])
+    pbar.set_description(str(data["uri"]))
     hashtag = (
         "(" + " OR ".join(data["hashtags"]) + ")"
         if len(data["hashtags"])
         else spceial_utf_reg.sub("", data["name"]["fa"])
     )
-    if len(data["recent_tweets_hist"]) == 18:
+    if (
+        len((data.get("recent_tweets_hist") or [])) > 5
+        and data.get("recent_tweets_hist")[-1]
+        .get("start", "")
+        .split("T")[0]
+        .split("-")[-1]
+        == "13"
+    ):
         continue
     if len(hashtag) < 3:
         continue
     # print("hashtag", hashtag)
     hists = get_count_hist(" ".join(hashtag.split()))
-    data["recent_tweets_hist"] = merge_tweet_hists(data["recent_tweets_hist"], hists)
+    data["recent_tweets_hist"] = merge_tweet_hists(
+        (data.get("recent_tweets_hist") or []), hists
+    )
     data["recent_tweets_count"] = sum(
         [d["tweet_count"] for d in data["recent_tweets_hist"]]
     )

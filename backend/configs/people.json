@@ -6,6 +6,9 @@
     "uri": {
       "type": "keyword"
     },
+    "external_urls": {
+      "type": "keyword"
+    },
     "age": {
       "type": "int",
       "fields": {
@@ -68,6 +71,18 @@
       "properties": {
         "value": { "type": "keyword" },
         "date": { "type": "date" }
+      }
+    },
+    "conviction": {
+      "type": "text",
+      "fields": {
+        "keyword": { "type": "keyword" }
+      }
+    },
+    "decision": {
+      "type": "text",
+      "fields": {
+        "keyword": { "type": "keyword" }
       }
     },
     "hashtags": { "type": "keyword" },

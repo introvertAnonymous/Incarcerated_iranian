@@ -1,5 +1,3 @@
-import Router from 'next/router';
-
 export const setToken = (token) => {
 
   localStorage.setItem('mytoken', token)// make up your own token

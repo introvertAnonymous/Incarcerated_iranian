@@ -19,30 +19,21 @@ import { TweetHistogram } from './tweetsHistogram';
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import { fetchToken } from '../lib/auth';
-import { TwitterTimelineEmbed, TwitterShareButton, TwitterFollowButton, TwitterHashtagButton, TwitterMentionButton, TwitterTweetEmbed, TwitterMomentShare, TwitterDMButton, TwitterVideoEmbed, TwitterOnAirButton } from 'react-twitter-embed';
+import { TwitterTweetEmbed } from 'react-twitter-embed';
 import { DesktopDatePicker } from '@mui/x-date-pickers';
+import { genders, stauses } from './constants'
 
 
 
-const genders = [{ id: "Q6581097", value: { en: "male", fa: "مذکر" } }, { id: "Q6581072", value: { en: "female", fa: "مؤنث" } }, { id: "unknown", value: { fa: "نامعلوم", en: "Unknown" } }]
-const stauses = [{ id: "زندانی", value: { en: "In Jail", fa: "زندانی" } },
-{ id: "آزاد شد", value: { en: "Free", fa: "آزاد" } },
-{ id: "مفقود", value: { fa: "نامعلوم", en: "Unknown" } },
-{ id: "در بازداشت کشته شد", value: { fa: "در بازداشت کشته شد", en: "Killed in prison" } },
-{ id: "حکم اعدام", value: { fa: "حکم اعدام", en: "Death Penalty" } }]
 const ListItem = styled('li')(({ theme }) => ({
   margin: theme.spacing(0.5),
 }));
-export const PersonDetails = (props) => {
+export const NewPerson = (props) => {
   const [saveSuccessOpen, setSaveSuccessOpen] = useState(false);
   const [saveFailOpen, setSaveFailsOpen] = useState(false);
   const [tweetsId, setTweetsId] = useState([]);
-  // const [dete, setValue] = useState('2014-08-18T21:11:54');
 
-  const [values, setValues] = useState(
-    props.values
-
-  );
+  const [values, setValues] = useState({ name: { fa: "", en: "" }, city: "", description: { fa: "", en: "" }, hashtags: [], status: stauses.find(d => d.id == "زندانی") });
   const [newHashtag, setNewHashtag] = useState("");
 
   const handleDetentionDatetime = (value) => { setValues({ ...values, detention_datetime: value }) }
@@ -140,7 +131,7 @@ export const PersonDetails = (props) => {
       },
       body: JSON.stringify({ ...values, detention_datetime: new Date(values.detention_datetime) || null })
     };
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/update`, options = options,)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/create`, options = options,)
       .then(response => response.json())
       .then(data => { handleSaveClick("success"); }).catch(err => { console.log(values); console.error(err); handleSaveClick("fail"); })
   }
@@ -156,7 +147,7 @@ export const PersonDetails = (props) => {
     };
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/tweets/hashtag_tweets?query=(${values.hashtags.join(" OR ")})&limit=10`, options = options)
       .then(response => response.json())
-      .then(data => { setTweetsId(data); }).catch(err => { console.error(err); })
+      .then(data => { console.log("data", data); setTweetsId(data); }).catch(err => { console.error(err); })
   }, [values.hashtags])
   return (
     <Box sx={{

@@ -19,6 +19,8 @@ COPY Readme.md .
 
 RUN pip install -e . && pip install -r incarcerated_iranian_requirements.txt
 
+COPY snscrape .
+RUN cd snscrape && pip install -e . && cd -
 
 RUN apt-get remove -y python3-pip  \
     && apt-get autoremove --purge -y  \

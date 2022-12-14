@@ -9,6 +9,7 @@ import { AuthConsumer, AuthProvider } from '../contexts/auth-context';
 import { createEmotionCache } from '../utils/create-emotion-cache';
 import { registerChartJs } from '../utils/register-chart-js';
 import { theme } from '../theme';
+import { RecoilRoot } from 'recoil';
 
 registerChartJs();
 
@@ -17,7 +18,7 @@ const clientSideEmotionCache = createEmotionCache();
 const App = (props) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
 
-  const getLayout = Component.getLayout ?? ((page) => page);
+  const getLayout = Component.getLayout ?? ((page) => <RecoilRoot>{page}</RecoilRoot>);
 
   return (
     <CacheProvider value={emotionCache}>

@@ -14,6 +14,8 @@ import {
   TableSortLabel,
   Typography
 } from '@mui/material';
+import { useRecoilValue } from 'recoil';
+import { searchPeople } from '../atoms/searchPeople';
 
 export const PeopleListResults = ({ ...rest }) => {
   const [limit, setLimit] = useState(10);
@@ -21,6 +23,7 @@ export const PeopleListResults = ({ ...rest }) => {
   const [people, setPeople] = useState([])
   const [countPeople, setCountPeople] = useState(10);
   const [sortDirection, setSortDirection] = useState("asc");
+  const search = useRecoilValue(searchPeople);
   useEffect(() => {
     const options = {
       method: 'GET',
@@ -46,10 +49,10 @@ export const PeopleListResults = ({ ...rest }) => {
         'Host': 'localhost:8000',
       },
     };
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/items?size=${limit}&offset=${page * limit}&sort=recent_tweets_count&asc=${sortDirection == 'asc'}`, options = options)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/items?size=${limit}&offset=${page * limit}&sort=recent_tweets_count&asc=${sortDirection == 'asc'}&search=${search}`, options = options)
       .then(response => response.json())
       .then(data => { setPeople(data); })
-  }, [limit, page, sortDirection])
+  }, [limit, page, sortDirection, search])
 
   const handleLimitChange = (event) => {
     setLimit(event.target.value);

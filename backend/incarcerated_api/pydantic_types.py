@@ -44,10 +44,8 @@ class TweetHist(BaseModel):
     tweet_count: int
 
 
-class Item(BaseModel):
-    uri: str
+class ItemCreate(BaseModel):
     name: Label
-    updated_at: datetime
     detention_datetime: Optional[datetime]
     age: Optional[int]
     external_links: Optional[str]
@@ -61,6 +59,13 @@ class Item(BaseModel):
     social_media: Optional[SocialMdedia]
     news: Optional[List[str]]
     hashtags: Optional[List[str]]
+    conviction: Optional[str]
+    decision: Optional[str]
+
+
+class Item(ItemCreate):
+    uri: str
+    updated_at: datetime
     recent_tweets_hist: Optional[List[TweetHist]]
     recent_tweets_count: Optional[int]
     recent_tweets_hist_verified: Optional[List[TweetHist]]
