@@ -7,7 +7,7 @@ from wikibaseintegrator.datatypes import Item, String, Quantity, Time, URL
 from wikibaseintegrator.wbi_enums import ActionIfExists
 from wikibaseintegrator.wbi_helpers import search_entities
 from polyglot.text import Text
-from incarcerated_api.utils import spceial_utf_reg, today, wbi
+from incarcerated_api.utils import remove_special_chars, get_today, wbi
 import time
 
 # import logging
@@ -49,12 +49,12 @@ def create_wiki_item(item):
             data.append(residence)
     hashtags = String(
         prop_nr="P2572",
-        value="#" + "_".join(spceial_utf_reg.sub("", item["name"]).split()),
+        value="#" + "_".join(remove_special_chars(item["name"]).split()),
         # qualifiers=[Quantity(prop_nr="P1114", amount=item["recent_tweets_count"])],
     )
     convicted_of = Item(prop_nr="P1399", value="Q175331")
     if item["status"] == "آزاد شد":
-        convicted_of.qualifiers = [Time(today, prop_nr="P582")]
+        convicted_of.qualifiers = [Time(get_today(), prop_nr="P582")]
     data.extend([convicted_of, hashtags])
     # Create a new item
     if not found:
@@ -62,11 +62,11 @@ def create_wiki_item(item):
         text = Text(item["name"], hint_language_code="fa")
         en_label = " ".join([t.capitalize() for t in text.transliterate("en")])
         # Set an english label
-        wiki_item.labels.set(language="fa", value=spceial_utf_reg.sub("", item["name"]))
+        wiki_item.labels.set(language="fa", value=remove_special_chars(item["name"]))
         # wiki_item.labels.set(language="en", value=en_label)
         # Set a Persian description
-        description = spceial_utf_reg.sub(
-            "", item.get("main_occupation", "") + " " + " | ".join(item.get("tags", []))
+        description = remove_special_chars(
+            item.get("main_occupation", "") + " " + " | ".join(item.get("tags", []))
         )
         description = " ".join(description.split())
         wiki_item.descriptions.set(language="fa", value=description)
@@ -90,7 +90,7 @@ def update_wiki_item(item):
     ]
     hashtags = String(
         prop_nr="P2572",
-        value="_".join(spceial_utf_reg.sub("", item["name"]).split()),
+        value="_".join(remove_special_chars(item["name"]).split()),
         # qualifiers=[Quantity(prop_nr="P1114", amount=item["recent_tweets_count"])],
     )
     event = Item(prop_nr="P793", value="Q114065797", references=references)

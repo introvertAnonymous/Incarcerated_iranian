@@ -1,6 +1,10 @@
 from incarcerated_api.constants import ELASTIC_INDEX
-from incarcerated_api.utils import get_count_hist, merge_tweet_hists
-from incarcerated_api.utils import spceial_utf_reg, today
+from incarcerated_api.utils.twitter import (
+    get_count_hist,
+    get_query_hashtag,
+    merge_tweet_hists,
+)
+from incarcerated_api.utils import get_today
 from incarcerated_api.utils.elastic import (
     get_es_client,
     insert_array_to_elastic,
@@ -8,6 +12,7 @@ from incarcerated_api.utils.elastic import (
 from tqdm import tqdm
 
 
+BATCH_SIZE = 100
 es = get_es_client()
 
 people_data = es.search(index=ELASTIC_INDEX, size=10000).body
@@ -16,20 +21,7 @@ results = []
 for data in pbar:
     data = data["_source"]
     pbar.set_description(str(data["uri"]))
-    hashtag = (
-        "(" + " OR ".join(data["hashtags"]) + ")"
-        if len(data["hashtags"])
-        else spceial_utf_reg.sub("", data["name"]["fa"])
-    )
-    if (
-        len((data.get("recent_tweets_hist") or [])) > 5
-        and data.get("recent_tweets_hist")[-1]
-        .get("start", "")
-        .split("T")[0]
-        .split("-")[-1]
-        == "13"
-    ):
-        continue
+    hashtag = get_query_hashtag(data)
     if len(hashtag) < 3:
         continue
     # print("hashtag", hashtag)
@@ -51,9 +43,9 @@ for data in pbar:
                 for d in data.get("recent_tweets_hist_verified", []) or []
             ]
         )
-    data["last_updated"] = today
+    data["last_updated"] = get_today()
     results.append(data)
-    if len(results) > 500:
+    if len(results) > BATCH_SIZE:
         insert_array_to_elastic(es, results, ELASTIC_INDEX)
         results = []
 insert_array_to_elastic(es, results, ELASTIC_INDEX)

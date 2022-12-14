@@ -1,15 +1,15 @@
 from incarcerated_api.constants import DATA_PATH
-from incarcerated_api.utils import spceial_utf_reg, today, wbi, get_count_hist
-from wikibaseintegrator.datatypes import Item, String, Quantity, Time
+from incarcerated_api.utils import remove_special_chars
+from incarcerated_api.utils.wikidata import wbi
+from incarcerated_api.utils.twitter import get_count_hist
+from wikibaseintegrator.datatypes import Item, Quantity
 from wikibaseintegrator.wbi_enums import ActionIfExists
 from glob import glob
 import os
 from tqdm import tqdm
 import json
-import time
 from tqdm import tqdm
 import uuid
-from tweepy.errors import TooManyRequests, BadRequest
 
 keys = ["name", "city", "status", "main_occupation", "tags"]
 
@@ -17,7 +17,7 @@ keys = ["name", "city", "status", "main_occupation", "tags"]
 def prepare_item(row):
 
     item = {
-        key: spceial_utf_reg.sub("", value.strip())
+        key: remove_special_chars(value.strip())
         for key, value in zip(keys[:-1], row[:4])
     }
     uri = item["uri"] = uuid.uuid3(

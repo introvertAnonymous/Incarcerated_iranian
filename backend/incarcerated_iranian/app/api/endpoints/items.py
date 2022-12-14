@@ -1,24 +1,23 @@
 from datetime import datetime
 import json
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import delete, select
+from fastapi import APIRouter, Depends
+from incarcerated_api.utils.twitter import get_count_hist, get_query_hashtag
+from incarcerated_iranian.app.api.endpoints.tweets import get_hashtag_tweets
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api import deps
-from app.core.security import get_password_hash
 from app.models import User
-from app.schemas.requests import UserCreateRequest, UserUpdatePasswordRequest
-from app.schemas.responses import UserResponse
-from incarcerated_api.pydantic_types import CityDist, Item, ItemCreate, StatTerm
-from incarcerated_api.constants import DATA_PATH, ELASTIC_INDEX
-from incarcerated_api.utils.elastic import get_es_client
-from incarcerated_api.utils import (
-    convert_to_elastic,
-    get_item as get_people_item,
-    get_uri,
+from incarcerated_api.pydantic_types import (
+    CityDist,
+    Item,
+    ItemCreate,
+    StatTerm,
+    TweetHist,
 )
-from incarcerated_api.utils import today
+from incarcerated_api.constants import ELASTIC_INDEX
+from incarcerated_api.utils.elastic import get_es_client
+from incarcerated_api.utils import get_uri
 
 
 router = APIRouter()
@@ -155,6 +154,21 @@ async def create_item(
 ):
     uri = get_uri(item.name.fa, item.city or "")
     item = Item.parse_obj({"uri": uri, "updated_at": datetime.now(), **item.dict()})
+    hashtag = get_query_hashtag(item.dict())
+    if len(hashtag) > 3:
+        item.recent_tweets_hist = [
+            TweetHist.parse_obj(d) for d in get_count_hist(hashtag)
+        ]
+        item.recent_tweets_count = sum([d.tweet_count for d in item.recent_tweets_hist])
+        if item.recent_tweets_count:
+            item.recent_tweets_hist_verified = [
+                TweetHist.parse_obj(d)
+                for d in get_count_hist(hashtag, is_verified=True)
+            ]
+            item.recent_tweets_count_verified = sum(
+                [d["tweet_count"] for d in item.recent_tweets_hist_verified]
+            )
+
     es.create(index=ELASTIC_INDEX, id=item.uri, document=json.loads(item.json()))
     return item
 

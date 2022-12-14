@@ -133,7 +133,7 @@ export const NewPerson = (props) => {
     };
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/create`, options = options,)
       .then(response => response.json())
-      .then(data => { handleSaveClick("success"); }).catch(err => { console.log(values); console.error(err); handleSaveClick("fail"); })
+      .then(data => { handleSaveClick("success"); Router.push(`/person?uri=${data.uri}`).catch(console.error) }).catch(err => { console.log(values); console.error(err); handleSaveClick("fail"); })
   }
   useEffect(() => {
     const options = {
@@ -147,7 +147,7 @@ export const NewPerson = (props) => {
     };
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/tweets/hashtag_tweets?query=(${values.hashtags.join(" OR ")})&limit=10`, options = options)
       .then(response => response.json())
-      .then(data => { console.log("data", data); setTweetsId(data); }).catch(err => { console.error(err); })
+      .then(data => { setTweetsId(data); }).catch(err => { console.error(err); })
   }, [values.hashtags])
   return (
     <Box sx={{
