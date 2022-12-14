@@ -23,11 +23,11 @@ const Page = () => {
     if (uri) {
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/item?uri=${uri}`, options = options)
         .then(response => response.json())
-        .then(data => { setValues(data); })
+        .then(data => { setValues(data); }).catch(err => { console.error(err); setValues({ not_found: "User not found!" }) })
     }
   }, [uri])
 
-  const name = values?.name?.en || values?.name?.fa || "Loading ...";
+  const name = values?.name?.en || values?.name?.fa || values?.not_found || "Loading ...";
   return <>
     <Head>
       <title>
@@ -41,7 +41,7 @@ const Page = () => {
         py: 8
       }}
     >
-      <Container maxWidth="lg">
+      <Container maxWidth="100%">
         <Typography
           sx={{ mb: 3 }}
           variant="h4"
@@ -54,11 +54,11 @@ const Page = () => {
         >
           <Grid
             item
-            lg={8}
-            md={6}
+            // lg={12}
+            // md={12}
             xs={12}
           >
-            {values && <PersonDetails uri={uri}
+            {values?.name && <PersonDetails uri={uri}
               values={values} />}
           </Grid>
         </Grid>

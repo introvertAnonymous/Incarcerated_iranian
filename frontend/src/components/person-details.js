@@ -10,8 +10,14 @@ import {
   Divider,
   Grid,
   Snackbar,
-  TextField
+  TextField,
+  Typography
 } from '@mui/material';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 
 import Chip from '@mui/material/Chip';
 import { Wikidata as WikidataLogo } from '../icons/wikidata'
@@ -19,7 +25,7 @@ import { TweetHistogram } from './tweetsHistogram';
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import { fetchToken } from '../lib/auth';
-import { TwitterTimelineEmbed, TwitterShareButton, TwitterFollowButton, TwitterHashtagButton, TwitterMentionButton, TwitterTweetEmbed, TwitterMomentShare, TwitterDMButton, TwitterVideoEmbed, TwitterOnAirButton } from 'react-twitter-embed';
+import { TwitterTweetEmbed } from 'react-twitter-embed';
 import { DesktopDatePicker } from '@mui/x-date-pickers';
 
 
@@ -44,6 +50,7 @@ export const PersonDetails = (props) => {
 
   );
   const [newHashtag, setNewHashtag] = useState("");
+  const [newTweet, setNewTweet] = useState("");
 
   const handleDetentionDatetime = (value) => { setValues({ ...values, detention_datetime: value }) }
   const handleChange = (event) => {
@@ -101,6 +108,22 @@ export const PersonDetails = (props) => {
       event.preventDefault();
       setValues(past => ({ ...past, hashtags: [...(past.hashtags || []), newHashtag] }));
       setNewHashtag("");
+
+    }
+  }
+  const handleAddNewTweet = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+
+      let t_id = newTweet;
+      if (Number.isNaN(Number(newTweet))) {
+        t_id = newTweet.split("/")[newTweet.split("/").length - 1];
+        if (Number.isNaN(Number(t_id))) {
+          console.error("newTweet is not a valid link or tweet id!", newTweet);
+        }
+      }
+      setValues(past => ({ ...past, tweets: [...(past.tweets || []), t_id] }));
+      setNewTweet("");
 
     }
   }
@@ -163,14 +186,21 @@ export const PersonDetails = (props) => {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'start',
-      flexDirection: "row"
+      flexDirection: "row",
+      // width: "100%"
     }}>
-      <Box lg={9}
-        sm={9}
-        xl={12}
+      <Box
+        maxWidth={"md"}
+        xl={3}
+        lg={4}
+        sm={6}
         xs={12}>
         <Card>
           <Box
+            xl={3}
+            lg={4}
+            sm={6}
+            xs={12}
             sx={{
               display: 'flex',
               justifyContent: 'space-between',
@@ -199,7 +229,7 @@ export const PersonDetails = (props) => {
           <CardContent>
             <Grid
               container
-              spacing={3}
+              spacing={1}
             >
               <Grid
                 item
@@ -233,188 +263,257 @@ export const PersonDetails = (props) => {
                   variant="outlined"
                 />
               </Grid>
-              <Grid
-                item
-                md={12}
-                xs={12}
-              >
-                <TextField
-                  fullWidth
-                  label="Description in English"
-                  name="desctiptionEnglish"
-                  multiline
-                  maxRows={4}
-                  onChange={handleChange}
-                  required
-                  value={values?.description?.en || "Unknown"}
-                  variant="outlined"
-                />
-              </Grid>
-              <Grid
-                item
-                md={12}
-                xs={12}
-              >
-                <TextField
-                  fullWidth
-                  label="Description in Persian"
-                  name="desctiptionPersian"
-                  multiline
-                  maxRows={4}
-                  onChange={handleChange}
-                  required
-                  value={values?.description?.fa || "Unknown"}
-                  variant="outlined"
-                />
-              </Grid>
-              <Grid
-                item
-                md={4}
-                xs={12}
-              >
-                <TextField
-                  fullWidth
-                  label="City"
-                  name="city"
-                  onChange={changeCity}
-                  // select
-                  SelectProps={{ native: true }}
-                  value={values.city || "Unknown"}
-                  variant="outlined"
+              <Accordion>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1a-detail"
+                  id="accordion-details"
                 >
-                </TextField>
-              </Grid>
-              <Grid
-                item
-                md={4}
-                xs={12}
-              >
-                <TextField
-                  fullWidth
-                  label="Gender"
-                  name="gender"
-                  onChange={changeGender}
-                  select
-                  SelectProps={{ native: true }}
-                  value={values?.gender?.id ? values.gender.id : "unknown"}
-                  variant="outlined"
-                >
-                  {genders.map((option) => (
-                    <option
-                      key={option.id}
-                      value={option.id}
+                  <Typography>Details</Typography>
+                </AccordionSummary><AccordionDetails>
+                  <Grid
+                    container
+                    spacing={3}
+                  >
+                    <Grid
+                      item
+                      md={12}
+                      xs={12}
                     >
-                      {option.value.fa}
-                    </option>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid
-                item
-                md={4}
-                xs={12}
-              >
-                <TextField
-                  fullWidth
-                  label="Status"
-                  name="status"
-                  onChange={changeStatus}
-                  select
-                  SelectProps={{ native: true }}
-                  value={values?.status?.value ? values.status.value : "unknown"}
-                  variant="outlined"
-                >
-                  {stauses.map((option) => (
-                    <option
-                      key={option.id}
-                      value={option.id}
+                      <TextField
+                        fullWidth
+                        label="Description in English"
+                        name="desctiptionEnglish"
+                        multiline
+                        maxRows={4}
+                        onChange={handleChange}
+                        required
+                        value={values?.description?.en || "Unknown"}
+                        variant="outlined"
+                      />
+                    </Grid>
+                    <Grid
+                      item
+                      md={12}
+                      xs={12}
                     >
-                      {option.value.fa}
-                    </option>
-                  ))}
-                </TextField>
+                      <TextField
+                        fullWidth
+                        label="Description in Persian"
+                        name="desctiptionPersian"
+                        multiline
+                        maxRows={4}
+                        onChange={handleChange}
+                        required
+                        value={values?.description?.fa || "Unknown"}
+                        variant="outlined"
+                      />
+                    </Grid>
+                    <Grid
+                      item
+                      md={3}
+                      xs={12}
+                    >
+                      <TextField
+                        fullWidth
+                        label="City"
+                        name="city"
+                        onChange={changeCity}
+                        // select
+                        SelectProps={{ native: true }}
+                        value={values.city || "Unknown"}
+                        variant="outlined"
+                      >
+                      </TextField>
+                    </Grid>
+                    <Grid
+                      item
+                      md={3}
+                      xs={12}
+                    >
+                      <TextField
+                        fullWidth
+                        label="Gender"
+                        name="gender"
+                        onChange={changeGender}
+                        select
+                        SelectProps={{ native: true }}
+                        value={values?.gender?.id ? values.gender.id : "unknown"}
+                        variant="outlined"
+                      >
+                        {genders.map((option) => (
+                          <option
+                            key={option.id}
+                            value={option.id}
+                          >
+                            {option.value.fa}
+                          </option>
+                        ))}
+                      </TextField>
+                    </Grid>
+                    <Grid
+                      item
+                      md={3}
+                      xs={12}
+                    >
+                      <TextField
+                        fullWidth
+                        label="Status"
+                        name="status"
+                        onChange={changeStatus}
+                        select
+                        SelectProps={{ native: true }}
+                        value={values?.status?.value ? values.status.value : "unknown"}
+                        variant="outlined"
+                      >
+                        {stauses.map((option) => (
+                          <option
+                            key={option.id}
+                            value={option.id}
+                          >
+                            {option.value.fa}
+                          </option>
+                        ))}
+                      </TextField>
+                    </Grid>
+                    <Grid
+                      item
+                      md={3}
+                      xs={12}
+                    >
+                      <TextField
+                        fullWidth
+                        label="Age"
+                        name="age"
+                        onChange={handleChange}
+                        required
+                        value={values?.age || "Unknown"}
+                        variant="outlined"
+                      />
+                    </Grid>
+                    <Grid
+                      item
+                      md={3}
+                      xs={12}
+                    >
+                      <DesktopDatePicker
+                        label="Detention date"
+                        inputFormat="MM/dd/yyy"
+                        value={values.detention_datetime}
+                        onChange={handleDetentionDatetime}
+                        renderInput={(params) => <TextField {...params} />}
+                      />
+                    </Grid>
+                  </Grid>
+                </AccordionDetails>
+              </Accordion>
+
+              <Grid
+                item
+                xs={12}
+              >
+                <Accordion>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1a-tweet-hist"
+                    id="tweet-hashtags-accordion"
+                  >
+                    <Typography>Twitter Hashtags</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <TextField label="New Hashtag"
+                      placeholder="..."
+                      name="newHashtag"
+                      onChange={(event) => setNewHashtag(event.target.value)}
+                      value={newHashtag}
+                      onKeyDown={handleNewHashtag}
+                      variant="outlined" />
+                    <Paper
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'left',
+                        flexWrap: 'wrap',
+                        listStyle: 'none',
+                        p: 0.5,
+                        m: 0,
+                      }}
+                      component="ul"
+                    >
+                      {values.hashtags?.map(data => <ListItem key={data}>
+                        <Chip
+                          label={data}
+                          onDelete={() => handleDelete(data)}
+                        />
+                      </ListItem>)
+                      }
+                    </Paper>
+                  </AccordionDetails>
+                </Accordion>
               </Grid>
               <Grid
                 item
-                md={6}
+                // md={6}
                 xs={12}
               >
-                <TextField
-                  fullWidth
-                  label="Age"
-                  name="age"
-                  onChange={handleChange}
-                  required
-                  value={values?.age || "Unknown"}
-                  variant="outlined"
-                />
+                <Accordion>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1a-content"
+                    id="tweet-hist-accordion"
+                  >
+                    <Typography>Tweets Histogram</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <TweetHistogram recent_tweets_hist={values.recent_tweets_hist || []}
+                      recent_tweets_hist_verified={values.recent_tweets_hist_verified || []} />
+                  </AccordionDetails>
+                </Accordion>
               </Grid>
               <Grid
                 item
-                md={6}
                 xs={12}
               >
-                {/* <TextField
-                  fullWidth
-                  label="Arrest date"
-                  name="detention_datetime"
-                  onChange={handleChange}
-                  required
-                  value={values?.detention_datetime || "Unknown"}
-                  variant="outlined"
-                /> */}
-                <DesktopDatePicker
-                  label="Date desktop"
-                  inputFormat="MM/dd/yyy"
-                  value={values.detention_datetime}
-                  onChange={handleDetentionDatetime}
-                  renderInput={(params) => <TextField {...params} />}
-                />
-              </Grid>
-              <Grid
-                item
-                md={12}
-                xs={12}
-              >
-                <TextField label="New Hashtag"
-                  placeholder="..."
-                  name="newHashtag"
-                  onChange={(event) => setNewHashtag(event.target.value)}
-                  value={newHashtag}
-                  onKeyDown={handleNewHashtag}
-                  variant="outlined" />
-                <Paper
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'left',
-                    flexWrap: 'wrap',
-                    listStyle: 'none',
-                    p: 0.5,
-                    m: 0,
-                  }}
-                  component="ul"
-                >
-                  {values.hashtags?.map(data => <ListItem key={data}>
-                    <Chip
-                      label={data}
-                      onDelete={() => handleDelete(data)}
+                <Accordion>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1a-tweets"
+                    id="tweets-header"
+                  >
+                    <Typography>Tweets</Typography>
+                  </AccordionSummary>
+
+                  <AccordionDetails>
+                    <TextField
+                      fullWidth
+                      label="Add related tweet"
+                      name="tweets"
+                      onChange={(event) => { setNewTweet(event.target.value) }}
+                      onKeyDown={handleAddNewTweet}
+                      required
+                      value={newTweet}
+                      variant="outlined"
                     />
-                  </ListItem>)
-                  }
-                </Paper>
-              </Grid>
-              <Grid
-                item
-                md={12}
-                xs={12}
-              >
-                <TweetHistogram recent_tweets_hist={values.recent_tweets_hist || []}
-                  recent_tweets_hist_verified={values.recent_tweets_hist_verified || []} />
+                    <Box
+                      md={6}
+                      xs={12}
+                      // maxWidth="100%"
+                      sx={{ display: 'flex', flexGrow: 1, flexDirection: "row", justifyContent: "space-between" }}>
+                      {(values.tweets || []).map(tid => <Grid md={6}
+                        xs={12}
+                        key={tid}><TwitterTweetEmbed
+                          tweetId={tid} /> </Grid>)}
+                    </Box>
+                  </AccordionDetails>
+                </Accordion>
               </Grid>
             </Grid>
           </CardContent>
           <Divider />
           <Box
+            xl={3}
+            lg={4}
+            sm={6}
+            xs={12}
             sx={{
               display: 'flex',
               justifyContent: 'flex-end',
@@ -449,13 +548,28 @@ export const PersonDetails = (props) => {
           </Snackbar>
         </Card>
       </Box>
-      <Box lg={3}
+      <Box
+        minWidth={"lg"}
+        xl={9}
+        lg={8}
         sm={6}
-        xl={3}
-        xs={12}>
-        {tweetsId.map(tid => <TwitterTweetEmbed key={tid}
-          tweetId={tid}
-        />)}
+        xs={12}
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'start',
+          flexDirection: "row",
+          flexWrap: "wrap",
+          marginLeft: 5
+        }}>
+        {tweetsId.map(tid => <Grid spacing={1}
+          xl={4}
+          lg={6}
+          sm={10}
+          xs={12}
+          key={tid}><TwitterTweetEmbed
+            tweetId={tid}
+          /></Grid>)}
       </Box>
     </Box>
   );

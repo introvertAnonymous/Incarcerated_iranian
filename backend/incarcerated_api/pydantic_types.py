@@ -48,7 +48,7 @@ class ItemCreate(BaseModel):
     name: Label
     detention_datetime: Optional[datetime]
     age: Optional[int]
-    external_links: Optional[str]
+    external_links: Optional[List[str]]
     wikidata: Optional[str]
     description: Optional[Label]
     date_of_birth: Optional[DateLabel]
@@ -58,6 +58,7 @@ class ItemCreate(BaseModel):
     status: Optional[Status]
     social_media: Optional[SocialMdedia]
     news: Optional[List[str]]
+    tweets: Optional[List[str]]
     hashtags: Optional[List[str]]
     conviction: Optional[str]
     decision: Optional[str]

@@ -141,7 +141,6 @@ async def update_item(
     current_user: User = Depends(deps.get_current_user),
     session: AsyncSession = Depends(deps.get_session),
 ):
-
     es.update(index="people", id=item.uri, doc=json.loads(item.json()))
     return item
 
