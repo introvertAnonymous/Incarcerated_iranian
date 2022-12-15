@@ -24,23 +24,23 @@ async def get_hashtag_tweets(
     if len(query) < 3:
         return []
     hashtag_scraper = TwitterHashtagScraper(query + " min_faves:100 -filter:replies")
-    items = []
+    items = set()
     for item in hashtag_scraper.get_items():
-        items.append(item.id)
+        items.add(item.id)
         if len(items) >= limit:
             break
     if len(items) >= limit:
-        return items
+        return list(items)
     hashtag_scraper = TwitterHashtagScraper(query + " -filter:replies")
     for item in hashtag_scraper.get_items():
-        items.append(item.id)
+        items.add(item.id)
         if len(items) >= limit:
             break
     if len(items) >= limit:
-        return items
+        return list(items)
     hashtag_scraper = TwitterHashtagScraper(query)
     for item in hashtag_scraper.get_items():
-        items.append(item.id)
+        items.add(item.id)
         if len(items) >= limit:
             break
-    return items
+    return list(items)

@@ -161,7 +161,7 @@ export const PersonDetails = (props) => {
         'Host': 'localhost:8000',
         'Authorization': `Bearer ${fetchToken()}`,
       },
-      body: JSON.stringify({ ...values, detention_datetime: new Date(values.detention_datetime) || null })
+      body: JSON.stringify({ ...values, detention_datetime: values.detention_datetime ? new Date(values.detention_datetime) : null })
     };
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/update`, options = options,)
       .then(response => response.json())
