@@ -85,7 +85,8 @@ export const TweetHistogram = ({ recent_tweets_hist_verified, recent_tweets_hist
   };
 
   return (
-    <Card {...props}>
+    <Card {...props}
+      sx={{ width: "90%", display: "block" }}>
       <CardHeader
         action={(
           <Button

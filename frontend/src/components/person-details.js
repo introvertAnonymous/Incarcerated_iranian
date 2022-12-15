@@ -187,6 +187,7 @@ export const PersonDetails = (props) => {
       justifyContent: 'space-between',
       alignItems: 'start',
       flexDirection: "row",
+      // flexWrap: "wrap"
       // width: "100%"
     }}>
       <Box
@@ -263,151 +264,156 @@ export const PersonDetails = (props) => {
                   variant="outlined"
                 />
               </Grid>
-              <Accordion>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1a-detail"
-                  id="accordion-details"
-                >
-                  <Typography>Details</Typography>
-                </AccordionSummary><AccordionDetails>
-                  <Grid
-                    container
-                    spacing={3}
+              <Grid
+                item
+                // md={6}
+                xs={12}
+              >
+                <Accordion>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1a-detail"
+                    id="accordion-details"
                   >
+                    <Typography>Details</Typography>
+                  </AccordionSummary><AccordionDetails>
                     <Grid
-                      item
-                      md={12}
-                      xs={12}
+                      container
+                      spacing={3}
                     >
-                      <TextField
-                        fullWidth
-                        label="Description in English"
-                        name="desctiptionEnglish"
-                        multiline
-                        maxRows={4}
-                        onChange={handleChange}
-                        required
-                        value={values?.description?.en || "Unknown"}
-                        variant="outlined"
-                      />
-                    </Grid>
-                    <Grid
-                      item
-                      md={12}
-                      xs={12}
-                    >
-                      <TextField
-                        fullWidth
-                        label="Description in Persian"
-                        name="desctiptionPersian"
-                        multiline
-                        maxRows={4}
-                        onChange={handleChange}
-                        required
-                        value={values?.description?.fa || "Unknown"}
-                        variant="outlined"
-                      />
-                    </Grid>
-                    <Grid
-                      item
-                      md={3}
-                      xs={12}
-                    >
-                      <TextField
-                        fullWidth
-                        label="City"
-                        name="city"
-                        onChange={changeCity}
-                        // select
-                        SelectProps={{ native: true }}
-                        value={values.city || "Unknown"}
-                        variant="outlined"
+                      <Grid
+                        item
+                        md={12}
+                        xs={12}
                       >
-                      </TextField>
-                    </Grid>
-                    <Grid
-                      item
-                      md={3}
-                      xs={12}
-                    >
-                      <TextField
-                        fullWidth
-                        label="Gender"
-                        name="gender"
-                        onChange={changeGender}
-                        select
-                        SelectProps={{ native: true }}
-                        value={values?.gender?.id ? values.gender.id : "unknown"}
-                        variant="outlined"
+                        <TextField
+                          fullWidth
+                          label="Description in English"
+                          name="desctiptionEnglish"
+                          multiline
+                          maxRows={4}
+                          onChange={handleChange}
+                          required
+                          value={values?.description?.en || "Unknown"}
+                          variant="outlined"
+                        />
+                      </Grid>
+                      <Grid
+                        item
+                        md={12}
+                        xs={12}
                       >
-                        {genders.map((option) => (
-                          <option
-                            key={option.id}
-                            value={option.id}
-                          >
-                            {option.value.fa}
-                          </option>
-                        ))}
-                      </TextField>
-                    </Grid>
-                    <Grid
-                      item
-                      md={3}
-                      xs={12}
-                    >
-                      <TextField
-                        fullWidth
-                        label="Status"
-                        name="status"
-                        onChange={changeStatus}
-                        select
-                        SelectProps={{ native: true }}
-                        value={values?.status?.value ? values.status.value : "unknown"}
-                        variant="outlined"
+                        <TextField
+                          fullWidth
+                          label="Description in Persian"
+                          name="desctiptionPersian"
+                          multiline
+                          maxRows={4}
+                          onChange={handleChange}
+                          required
+                          value={values?.description?.fa || "Unknown"}
+                          variant="outlined"
+                        />
+                      </Grid>
+                      <Grid
+                        item
+                        md={3}
+                        xs={12}
                       >
-                        {stauses.map((option) => (
-                          <option
-                            key={option.id}
-                            value={option.id}
-                          >
-                            {option.value.fa}
-                          </option>
-                        ))}
-                      </TextField>
+                        <TextField
+                          fullWidth
+                          label="City"
+                          name="city"
+                          onChange={changeCity}
+                          // select
+                          SelectProps={{ native: true }}
+                          value={values.city || "Unknown"}
+                          variant="outlined"
+                        >
+                        </TextField>
+                      </Grid>
+                      <Grid
+                        item
+                        md={3}
+                        xs={12}
+                      >
+                        <TextField
+                          fullWidth
+                          label="Gender"
+                          name="gender"
+                          onChange={changeGender}
+                          select
+                          SelectProps={{ native: true }}
+                          value={values?.gender?.id ? values.gender.id : "unknown"}
+                          variant="outlined"
+                        >
+                          {genders.map((option) => (
+                            <option
+                              key={option.id}
+                              value={option.id}
+                            >
+                              {option.value.fa}
+                            </option>
+                          ))}
+                        </TextField>
+                      </Grid>
+                      <Grid
+                        item
+                        md={3}
+                        xs={12}
+                      >
+                        <TextField
+                          fullWidth
+                          label="Status"
+                          name="status"
+                          onChange={changeStatus}
+                          select
+                          SelectProps={{ native: true }}
+                          value={values?.status?.value ? values.status.value : "unknown"}
+                          variant="outlined"
+                        >
+                          {stauses.map((option) => (
+                            <option
+                              key={option.id}
+                              value={option.id}
+                            >
+                              {option.value.fa}
+                            </option>
+                          ))}
+                        </TextField>
+                      </Grid>
+                      <Grid
+                        item
+                        md={3}
+                        xs={12}
+                      >
+                        <TextField
+                          fullWidth
+                          label="Age"
+                          name="age"
+                          onChange={handleChange}
+                          required
+                          value={values?.age || "Unknown"}
+                          variant="outlined"
+                        />
+                      </Grid>
+                      <Grid
+                        item
+                        md={3}
+                        xs={12}
+                      >
+                        <DesktopDatePicker
+                          label="Detention date"
+                          inputFormat="MM/dd/yyy"
+                          value={values.detention_datetime}
+                          onChange={handleDetentionDatetime}
+                          renderInput={(params) => <TextField {...params} />}
+                        />
+                      </Grid>
                     </Grid>
-                    <Grid
-                      item
-                      md={3}
-                      xs={12}
-                    >
-                      <TextField
-                        fullWidth
-                        label="Age"
-                        name="age"
-                        onChange={handleChange}
-                        required
-                        value={values?.age || "Unknown"}
-                        variant="outlined"
-                      />
-                    </Grid>
-                    <Grid
-                      item
-                      md={3}
-                      xs={12}
-                    >
-                      <DesktopDatePicker
-                        label="Detention date"
-                        inputFormat="MM/dd/yyy"
-                        value={values.detention_datetime}
-                        onChange={handleDetentionDatetime}
-                        renderInput={(params) => <TextField {...params} />}
-                      />
-                    </Grid>
-                  </Grid>
-                </AccordionDetails>
-              </Accordion>
-
+                  </AccordionDetails>
+                </Accordion>
+              </Grid>
               <Grid
                 item
                 xs={12}
@@ -464,8 +470,8 @@ export const PersonDetails = (props) => {
                     <Typography>Tweets Histogram</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <TweetHistogram recent_tweets_hist={values.recent_tweets_hist || []}
-                      recent_tweets_hist_verified={values.recent_tweets_hist_verified || []} />
+                    <TweetHistogram recent_tweets_hist={values.recent_tweets_hist?.slice(-7) || []}
+                      recent_tweets_hist_verified={values.recent_tweets_hist_verified?.slice(-7) || []} />
                   </AccordionDetails>
                 </Accordion>
               </Grid>
@@ -549,10 +555,10 @@ export const PersonDetails = (props) => {
         </Card>
       </Box>
       <Box
-        minWidth={"lg"}
-        xl={9}
-        lg={8}
-        sm={6}
+        // minWidth={"lg"}
+        // xl={4}
+        // lg={8}
+        // sm={6}
         xs={12}
         sx={{
           display: 'flex',
@@ -560,13 +566,15 @@ export const PersonDetails = (props) => {
           alignItems: 'start',
           flexDirection: "row",
           flexWrap: "wrap",
-          marginLeft: 5
+          marginLeft: 5,
+          width: "100%"
         }}>
         {tweetsId.map(tid => <Grid spacing={1}
-          xl={4}
-          lg={6}
-          sm={10}
+          xl="auto"
+          lg="auto"
+          sm={12}
           xs={12}
+          sx={{ minWidth: "100px" }}
           key={tid}><TwitterTweetEmbed
             tweetId={tid}
           /></Grid>)}
