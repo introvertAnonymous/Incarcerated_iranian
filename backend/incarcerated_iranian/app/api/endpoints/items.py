@@ -3,7 +3,6 @@ import json
 from typing import List
 from fastapi import APIRouter, Depends
 from incarcerated_api.utils.twitter import get_count_hist, get_query_hashtag
-from incarcerated_iranian.app.api.endpoints.tweets import get_hashtag_tweets
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api import deps
