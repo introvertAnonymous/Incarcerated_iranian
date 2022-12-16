@@ -165,7 +165,7 @@ export const PersonDetails = (props) => {
     };
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/update`, options = options,)
       .then(response => response.json())
-      .then(data => { handleSaveClick("success"); }).catch(err => { console.log(values); console.error(err); handleSaveClick("fail"); })
+      .then(data => { handleSaveClick("success"); }).catch(err => { console.error(err); handleSaveClick("fail"); })
   }
   useEffect(() => {
     const options = {

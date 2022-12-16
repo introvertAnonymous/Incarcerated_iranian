@@ -31,6 +31,8 @@ const Page = () => {
     //   const name = values?.name?.en || values?.name?.fa || "Loading ...";
     return <>
         <Head>
+            <meta name="viewport"
+                content="width=device-width, initial-scale=1.0" />
             <title>
                 New Person
             </title>

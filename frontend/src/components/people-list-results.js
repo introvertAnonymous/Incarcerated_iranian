@@ -23,6 +23,7 @@ export const PeopleListResults = ({ ...rest }) => {
   const [people, setPeople] = useState([])
   const [countPeople, setCountPeople] = useState(10);
   const [sortDirection, setSortDirection] = useState("asc");
+  const [sortColumn, setSortColumn] = useState("recent_tweets_count");
   const search = useRecoilValue(searchPeople);
   useEffect(() => {
     const options = {
@@ -34,10 +35,10 @@ export const PeopleListResults = ({ ...rest }) => {
         'Host': 'localhost:8000',
       },
     };
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/count`, options = options)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/count?search=${search}`, options = options)
       .then(response => response.json())
       .then(data => { setCountPeople(data); })
-  }, []);
+  }, [search]);
 
   useEffect(() => {
     const options = {
@@ -49,10 +50,10 @@ export const PeopleListResults = ({ ...rest }) => {
         'Host': 'localhost:8000',
       },
     };
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/items?size=${limit}&offset=${page * limit}&sort=recent_tweets_count&asc=${sortDirection == 'asc'}&search=${search}`, options = options)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/items?size=${limit}&offset=${page * limit}&sort=${sortColumn}&asc=${sortDirection == 'asc'}&search=${search}`, options = options)
       .then(response => response.json())
       .then(data => { setPeople(data); })
-  }, [limit, page, sortDirection, search])
+  }, [limit, page, sortDirection, search, sortColumn])
 
   const handleLimitChange = (event) => {
     setLimit(event.target.value);
@@ -61,8 +62,8 @@ export const PeopleListResults = ({ ...rest }) => {
   const handlePageChange = (event, newPage) => {
     setPage(newPage);
   };
-  const handleChangeSortDirection = () => {
-
+  const handleChangeSortDirection = (sortKey) => {
+    setSortColumn(sortKey)
     if (sortDirection == "asc") {
       setSortDirection("desc")
     } else {
@@ -78,9 +79,6 @@ export const PeopleListResults = ({ ...rest }) => {
           <Table>
             <TableHead>
               <TableRow>
-                {/* <TableCell>
-                  Wikidata
-                </TableCell> */}
                 <TableCell>
                   Name
                 </TableCell>
@@ -90,9 +88,25 @@ export const PeopleListResults = ({ ...rest }) => {
                 <TableCell>
                   City
                 </TableCell>
-                <TableCell onClick={handleChangeSortDirection}>
+                <TableCell onClick={() => handleChangeSortDirection("decision")}>
                   <TableSortLabel
-                    active
+                    active={sortColumn === "decision"}
+                    direction={sortDirection}
+                  >
+                    Decision
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell onClick={() => handleChangeSortDirection("conviction")}>
+                  <TableSortLabel
+                    active={sortColumn === "conviction"}
+                    direction={sortDirection}
+                  >
+                    Conviction
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell onClick={() => handleChangeSortDirection("recent_tweets_count")}>
+                  <TableSortLabel
+                    active={sortColumn === "recent_tweets_count"}
                     direction={sortDirection}
                   >
                     Recent Tweets
@@ -113,21 +127,6 @@ export const PeopleListResults = ({ ...rest }) => {
                     key={person.uri}
                     style={{ cursor: "pointer" }}
                   >
-                    {/* <TableCell>
-                      <Box
-                        sx={{
-                          alignItems: 'center',
-                          display: 'flex'
-                        }}
-                      >
-                        <Typography
-                          color="textPrimary"
-                          variant="body1"
-                        >
-                          {person.wikidata}
-                        </Typography>
-                      </Box>
-                    </TableCell> */}
                     <TableCell>
                       {person.name.fa}
                     </TableCell>
@@ -136,6 +135,12 @@ export const PeopleListResults = ({ ...rest }) => {
                     </TableCell>
                     <TableCell>
                       {person.city || "نامعلوم"}
+                    </TableCell>
+                    <TableCell>
+                      {person.decision || "نامعلوم"}
+                    </TableCell>
+                    <TableCell>
+                      {person.conviction || "نامعلوم"}
                     </TableCell>
                     <TableCell>
                       {person.recent_tweets_count}

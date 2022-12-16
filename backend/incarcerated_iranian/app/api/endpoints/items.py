@@ -24,6 +24,24 @@ router = APIRouter()
 es = get_es_client()
 
 
+def get_query(search):
+    return {
+        "multi_match": {
+            "query": search,
+            "type": "bool_prefix",
+            "fields": [
+                "name.fa",
+                "name.en",
+                "name.fa._2gram",
+                "name.en._3gram",
+                "name.fa._index_prefix",
+                "name.en._index_prefix",
+            ],
+            "operator": "or",
+        }
+    }
+
+
 @router.get("/item", response_model=Item)
 async def get_item(
     uri: str,
@@ -47,24 +65,15 @@ async def get_items(
     # current_user: User = Depends(deps.get_current_user),
     session: AsyncSession = Depends(deps.get_session),
 ):
-    sort_key = [{sort: {"order": "asc" if asc else "desc"}}] if sort else None
+    if sort and not search:
+        if Item.__fields__[sort].type_ == str:
+            sort += ".keyword"
+        sort_key = [{sort: {"order": "asc" if asc else "desc"}}]
+    else:
+        sort_key = None
     query = None
     if search:
-        query = {
-            "multi_match": {
-                "query": search,
-                "type": "bool_prefix",
-                "fields": [
-                    "name.fa",
-                    "name.en",
-                    "name.fa._2gram",
-                    "name.en._3gram",
-                    "name.fa._index_prefix",
-                    "name.en._index_prefix",
-                ],
-                "operator": "or",
-            }
-        }
+        query = get_query(search)
     selected = [
         d.get("_source")
         for d in es.search(
@@ -79,10 +88,24 @@ async def get_items(
 
 @router.get("/count", response_model=int)
 async def get_count_items(
+    search: str = "",
     # current_user: User = Depends(deps.get_current_user),
     session: AsyncSession = Depends(deps.get_session),
 ):
-    count = es.count(index="people").body.get("count")
+    query = None
+    if search:
+        query = get_query(search)
+    count = (
+        es.search(
+            index="people",
+            size=0,
+            query=query,
+            aggregations={"count": {"value_count": {"field": "uri"}}},
+        )
+        .body.get("aggregations", {})
+        .get("count", {})
+        .get("value")
+    )
     return count
 
 

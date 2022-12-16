@@ -1,13 +1,14 @@
-import { useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
+import Router from 'next/router';
 import PropTypes from 'prop-types';
 import styled from '@emotion/styled';
-import { AppBar, Avatar, Badge, Box, IconButton, Toolbar, Tooltip } from '@mui/material';
+import { ClickAwayListener } from '@mui/base';
+import { AppBar, Box, IconButton, InputBase, List, ListItem, ListItemButton, ListItemText, TextField, Toolbar, Tooltip } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
-import { Bell as BellIcon } from '../icons/bell';
-import { UserCircle as UserCircleIcon } from '../icons/user-circle';
-import { Users as UsersIcon } from '../icons/users';
-// import { AccountPopover } from './account-popover';
+import { peopleList } from '../atoms/peopleList';
+import { useRecoilState, } from 'recoil';
+import { searchPeople } from '../atoms/searchPeople';
 
 const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
     backgroundColor: theme.palette.background.paper,
@@ -16,8 +17,27 @@ const DashboardNavbarRoot = styled(AppBar)(({ theme }) => ({
 
 export const DashboardNavbar = (props) => {
     const { onSidebarOpen, ...other } = props;
-    const settingsRef = useRef(null);
-    //   const [openAccountPopover, setOpenAccountPopover] = useState(false);
+    const [peopleListValue, setPeopleListValue] = useRecoilState(peopleList);
+    const [searchValue, setSearchValue] = useRecoilState(searchPeople)
+    const [hideSearchPane, setHideSearchPane] = useState(false);
+    useEffect(() => {
+        if (searchValue) {
+            const options = {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Origin': '',
+                    'Host': 'localhost:8000',
+                },
+            };
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/items?size=5&search=${searchValue}`, options = options)
+                .then(response => response.json())
+                .then(data => { setPeopleListValue(data); })
+        } else {
+            setPeopleListValue([])
+        }
+    }, [searchValue])
 
     return (
         <>
@@ -51,18 +71,32 @@ export const DashboardNavbar = (props) => {
                         <MenuIcon fontSize="small" />
                     </IconButton>
                     <Tooltip title="Search">
-                        <IconButton sx={{ ml: 1 }} disabled>
+                        <IconButton sx={{ ml: 1 }} >
                             <SearchIcon fontSize="small" />
                         </IconButton>
                     </Tooltip>
-                    <Box sx={{ flexGrow: 1 }} />
+                    {!props.peoplePage &&
+                        <InputBase
+                            sx={{ ml: 1, flex: 1 }}
+                            placeholder="Search People"
+                            onKeyDown={(event) => { if (event.key === "ArrowDown") { setHideSearchPane(false) } }}
+                            value={searchValue}
+                            onChange={event => { setSearchValue(event.target.value); setHideSearchPane(false); }}
+                            inputProps={{ 'aria-label': 'search people' }}
+                        />}
+                    {/* <Box sx={{ flexGrow: 1 }} /> */}
                 </Toolbar>
+                {!props.peoplePage && (peopleListValue || []).length > 0 && <ClickAwayListener onClickAway={() => { setHideSearchPane(true) }}>
+                    <List sx={{ width: '100%' }}>
+                        {!hideSearchPane && peopleListValue.map(d => (<ListItem key={d.uri}
+                            component="div"
+                            disablePadding>
+                            <ListItemButton onClick={() => { Router.push(`/person?uri=${d.uri}`); setHideSearchPane(true); }}>
+                                <ListItemText sx={{ color: "black" }}
+                                    primary={d?.name?.fa || ""} />
+                            </ListItemButton>
+                        </ListItem>))}</List></ClickAwayListener>}
             </DashboardNavbarRoot>
-            {/* <AccountPopover
-        anchorEl={settingsRef.current}
-        open={openAccountPopover}
-        onClose={() => setOpenAccountPopover(false)}
-      /> */}
         </>
     );
 };

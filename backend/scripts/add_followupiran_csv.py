@@ -30,20 +30,30 @@ def get_item_from_csv(row: pd.Series) -> Item:
         return
     city = remove_special_chars(row[coloumns[1]] or "").strip()
     uri = get_uri(name, city)
+    conviction = row[coloumns[5]] or None
+    decision = row[coloumns[6]] or None
+    if conviction:
+        conviction = remove_special_chars(conviction).strip()
+    if decision:
+        decision = remove_special_chars(decision).strip()
     try:
         status = Status(value=status_dict[row[coloumns[2]]])
     except:
         status = None
     try:
         doc = es.get(index=ELASTIC_INDEX, id=uri)
-        if doc["_source"]["status"]["value"] != status.value.value:
+        if (
+            doc["_source"]["status"]["value"] != status.value.value
+            or decision != doc["_source"].get("decision")
+            or conviction != doc["_source"].get("conviction")
+        ):
             doc["_source"]["status"]["value"] = status.value.value
+            doc["_source"]["decision"] = decision
+            doc["_source"]["conviction"] = conviction
             es.update(index=ELASTIC_INDEX, id=doc["_id"], doc=doc["_source"])
     except:
         activity = row[coloumns[3]]
         info = row[coloumns[4]]
-        conviction = row[coloumns[5]] or None
-        decision = row[coloumns[6]] or None
         detention_date = None
         detention = row[coloumns[7]]
         if detention and len(detention.split()) >= 2:
