@@ -5,13 +5,17 @@ import { DashboardLayout } from '../components/dashboard-layout';
 import { useEffect, useState } from 'react';
 import { CityDistribution } from '../components/dashboard/cityDistribution';
 import { PeopleListResults } from '../components/people-list-results';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { statusFilter } from "../atoms/statusFilter";
+import { authToken } from '../atoms/authToken';
+import { fetchToken } from '../lib/auth';
 
 const Page = () => {
   const [stats, setStats] = useState([]);
   const [cityDist, setCityDist] = useState();
   const [statusFilterValue, setStatusFilterValue] = useRecoilState(statusFilter);
+  const setAuthTokenValue = useSetRecoilState(authToken);
+  useEffect(() => { setAuthTokenValue(fetchToken()) });
   useEffect(() => {
     const options = {
       method: 'GET',

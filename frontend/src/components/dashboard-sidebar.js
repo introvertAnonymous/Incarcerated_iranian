@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import PropTypes from 'prop-types';
@@ -7,6 +7,11 @@ import { ChartBar as ChartBarIcon } from '../icons/chart-bar';
 import { Users as UsersIcon } from '../icons/users';
 import { Logo } from './logo';
 import { NavItem } from './nav-item';
+import { Lock as LockIcon } from '../icons/lock';
+import { fetchToken } from '../lib/auth';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useRecoilValue } from 'recoil';
+import { authToken } from '../atoms/authToken';
 
 const items = [
   {
@@ -18,12 +23,23 @@ const items = [
     href: '/people',
     icon: (<UsersIcon fontSize="small" />),
     title: 'People'
-  }
+  },
+  {
+    href: '/login',
+    icon: (<LockIcon fontSize="small" />),
+    title: 'Login',
+  },
+  {
+    href: "/logout",
+    icon: (<LogoutIcon fontSize='small' />),
+    title: "Logout",
+  },
 ];
 
 export const DashboardSidebar = (props) => {
   const { open, onClose } = props;
   const router = useRouter();
+  const authTokenValue = useRecoilValue(authToken);
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'), {
     defaultMatches: true,
     noSsr: false
@@ -81,6 +97,7 @@ export const DashboardSidebar = (props) => {
               icon={item.icon}
               href={item.href}
               title={item.title}
+              disabled={((item.title === "Login") && !!authTokenValue) || ((item.title === "Logout") && !authTokenValue)}
             />
           ))}
         </Box>

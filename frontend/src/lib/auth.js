@@ -1,11 +1,22 @@
+import Router from 'next/router';
+const tokenName = "mytoken";
 export const setToken = (token) => {
 
-  localStorage.setItem('mytoken', token)// make up your own token
+  localStorage.setItem(tokenName, token)// make up your own token
+}
+
+export const removeToken = () => {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(tokenName);
+    Router.push("/").catch(console.error)
+  }
 }
 
 export const fetchToken = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem(tokenName)
+  }
 
-  return localStorage.getItem('mytoken')
 }
 
 
