@@ -1,7 +1,8 @@
 {
   "listeners": {
-    "*:8080": {
-      "pass": "applications/fastapi"
+    "*:8443": {
+      "pass": "applications/fastapi",
+      "tls": { "certificate": "bundle" }
     }
   },
   "applications": {
