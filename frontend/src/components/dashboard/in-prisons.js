@@ -1,5 +1,4 @@
 import { Avatar, Box, Card, CardContent, Grid, Typography } from '@mui/material';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import PeopleIcon from '@mui/icons-material/PeopleOutlined'
 export const InPrisons = (props) => (
   <Card

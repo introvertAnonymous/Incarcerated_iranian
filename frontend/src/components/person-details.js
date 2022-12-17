@@ -17,7 +17,8 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import SaveIcon from '@mui/icons-material/Save';
 
 import Chip from '@mui/material/Chip';
 import { Wikidata as WikidataLogo } from '../icons/wikidata'
@@ -27,18 +28,20 @@ import Paper from '@mui/material/Paper';
 import { fetchToken } from '../lib/auth';
 import { TwitterTweetEmbed } from 'react-twitter-embed';
 import { DesktopDatePicker } from '@mui/x-date-pickers';
+import { genders, stauses } from "./constants"
 
 
 
-const genders = [{ id: "Q6581097", value: { en: "male", fa: "مذکر" } }, { id: "Q6581072", value: { en: "female", fa: "مؤنث" } }, { id: "unknown", value: { fa: "نامعلوم", en: "Unknown" } }]
-const stauses = [{ id: "زندانی", value: { en: "In Jail", fa: "زندانی" } },
-{ id: "آزاد شد", value: { en: "Free", fa: "آزاد" } },
-{ id: "مفقود", value: { fa: "نامعلوم", en: "Unknown" } },
-{ id: "در بازداشت کشته شد", value: { fa: "در بازداشت کشته شد", en: "Killed in prison" } },
-{ id: "حکم اعدام", value: { fa: "حکم اعدام", en: "Death Penalty" } }]
+// const genders = [{ id: "Q6581097", value: { en: "male", fa: "مذکر" } }, { id: "Q6581072", value: { en: "female", fa: "مؤنث" } }, { id: "unknown", value: { fa: "نامعلوم", en: "Unknown" } }]
+// const stauses = [{ id: "زندانی", value: { en: "In Jail", fa: "زندانی" } },
+// { id: "آزاد شد", value: { en: "Free", fa: "آزاد" } },
+// { id: "مفقود", value: { fa: "نامعلوم", en: "Unknown" } },
+// { id: "در بازداشت کشته شد", value: { fa: "در بازداشت کشته شد", en: "Killed in prison" } },
+// { id: "حکم اعدام", value: { fa: "حکم اعدام", en: "Death Penalty" } }]
 const ListItem = styled('li')(({ theme }) => ({
   margin: theme.spacing(0.5),
 }));
+
 export const PersonDetails = (props) => {
   const [saveSuccessOpen, setSaveSuccessOpen] = useState(false);
   const [saveFailOpen, setSaveFailsOpen] = useState(false);
@@ -49,6 +52,9 @@ export const PersonDetails = (props) => {
     props.values
 
   );
+  if (props.values?.uri !== values?.uri) {
+    setValues(props.values)
+  }
   const [newHashtag, setNewHashtag] = useState("");
   const [newTweet, setNewTweet] = useState("");
 
@@ -111,6 +117,21 @@ export const PersonDetails = (props) => {
 
     }
   }
+
+  const handleNext = () => {
+    const options = {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Origin': '',
+        'Host': process.env.NEXT_PUBLIC_API_URL.replace("http://", "").replace("https://", ""),
+      },
+    };
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/next_item?uri=${values.uri}`, options = options)
+      .then(response => response.json())
+      .then(data => { Router.push(`/person?uri=${data.uri}`) }).catch(err => { console.error(err); })
+  }
   const handleAddNewTweet = (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
@@ -158,7 +179,7 @@ export const PersonDetails = (props) => {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Origin': '',
-        'Host': 'localhost:8000',
+        'Host': process.env.NEXT_PUBLIC_API_URL.replace("http://", "").replace("https://", ""),
         'Authorization': `Bearer ${fetchToken()}`,
       },
       body: JSON.stringify({ ...values, detention_datetime: values.detention_datetime ? new Date(values.detention_datetime) : null })
@@ -174,7 +195,7 @@ export const PersonDetails = (props) => {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Origin': '',
-        'Host': 'localhost:8000',
+        'Host': process.env.NEXT_PUBLIC_API_URL.replace("http://", "").replace("https://", ""),
       },
     };
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/tweets/hashtag_tweets?query=(${values.hashtags.join(" OR ")})&limit=10`, options = options)
@@ -504,7 +525,8 @@ export const PersonDetails = (props) => {
                       xs={12}
                       // maxWidth="100%"
                       sx={{ display: 'flex', flexGrow: 1, flexDirection: "row", justifyContent: "space-between" }}>
-                      {(values.tweets || []).map(tid => <Grid md={6}
+                      {(values.tweets || []).map(tid => <Grid item
+                        md={6}
                         xs={12}
                         key={tid}><TwitterTweetEmbed
                           tweetId={tid} /> </Grid>)}
@@ -522,16 +544,23 @@ export const PersonDetails = (props) => {
             xs={12}
             sx={{
               display: 'flex',
-              justifyContent: 'flex-end',
-              p: 2
+              justifyContent: 'space-between',
+              p: 2,
+              flexDirection: "row"
             }}
           >
+            <Button variant="contained"
+              onClick={handleNext}
+              endIcon={<ArrowForwardIosIcon />}>
+              Next
+            </Button>
             <Button
               color="primary"
               variant="contained"
               onClick={handleSaveDetails}
+              endIcon={<SaveIcon />}
             >
-              Save details
+              Save
             </Button>
           </Box>
           <Snackbar open={saveSuccessOpen}
@@ -569,7 +598,7 @@ export const PersonDetails = (props) => {
           marginLeft: 5,
           width: "100%"
         }}>
-        {tweetsId.map(tid => <Grid spacing={1}
+        {tweetsId.map(tid => <Grid item
           xl="auto"
           lg="auto"
           sm={12}

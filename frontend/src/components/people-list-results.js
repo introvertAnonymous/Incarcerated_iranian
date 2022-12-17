@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { useRecoilValue } from 'recoil';
 import { searchPeople } from '../atoms/searchPeople';
+import { statusFilter } from '../atoms/statusFilter';
 
 export const PeopleListResults = ({ ...rest }) => {
   const [limit, setLimit] = useState(10);
@@ -25,6 +26,7 @@ export const PeopleListResults = ({ ...rest }) => {
   const [sortDirection, setSortDirection] = useState("asc");
   const [sortColumn, setSortColumn] = useState("recent_tweets_count");
   const search = useRecoilValue(searchPeople);
+  const statusFilterValue = useRecoilValue(statusFilter);
   useEffect(() => {
     const options = {
       method: 'GET',
@@ -32,12 +34,12 @@ export const PeopleListResults = ({ ...rest }) => {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Origin': '',
-        'Host': 'localhost:8000',
+        'Host': process.env.NEXT_PUBLIC_API_URL.replace("http://", "").replace("https://", ""),
       },
     };
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/count?search=${search}`, options = options)
       .then(response => response.json())
-      .then(data => { setCountPeople(data); })
+      .then(data => { setCountPeople(data); }).catch(err => console.error("error in count", err));
   }, [search]);
 
   useEffect(() => {
@@ -47,13 +49,13 @@ export const PeopleListResults = ({ ...rest }) => {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Origin': '',
-        'Host': 'localhost:8000',
+        'Host': process.env.NEXT_PUBLIC_API_URL.replace("http://", "").replace("https://", ""),
       },
     };
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/items?size=${limit}&offset=${page * limit}&sort=${sortColumn}&asc=${sortDirection == 'asc'}&search=${search}`, options = options)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/items?size=${limit}&offset=${page * limit}&sort=${sortColumn}&asc=${sortDirection == 'asc'}&search=${search}&status_filter=${statusFilterValue}`, options = options)
       .then(response => response.json())
-      .then(data => { setPeople(data); })
-  }, [limit, page, sortDirection, search, sortColumn])
+      .then(data => { setPeople(data); }).catch(err => console.error("error in items", err))
+  }, [limit, page, sortDirection, search, sortColumn, statusFilterValue])
 
   const handleLimitChange = (event) => {
     setLimit(event.target.value);

@@ -126,7 +126,7 @@ export const NewPerson = (props) => {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Origin': '',
-        'Host': 'localhost:8000',
+        'Host': process.env.NEXT_PUBLIC_API_URL.replace("http://", "").replace("https://", ""),
         'Authorization': `Bearer ${fetchToken()}`,
       },
       body: JSON.stringify({ ...values, detention_datetime: new Date(values.detention_datetime) || null })
@@ -142,7 +142,7 @@ export const NewPerson = (props) => {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Origin': '',
-        'Host': 'localhost:8000',
+        'Host': process.env.NEXT_PUBLIC_API_URL.replace("http://", "").replace("https://", ""),
       },
     };
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/tweets/hashtag_tweets?query=(${values.hashtags.join(" OR ")})&limit=10`, options = options)

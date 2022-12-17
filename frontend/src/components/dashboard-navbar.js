@@ -28,7 +28,7 @@ export const DashboardNavbar = (props) => {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'Origin': '',
-                    'Host': 'localhost:8000',
+                    'Host': process.env.NEXT_PUBLIC_API_URL.replace("http://", "").replace("https://", ""),
                 },
             };
             fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/items?size=5&search=${searchValue}`, options = options)
@@ -75,7 +75,7 @@ export const DashboardNavbar = (props) => {
                             <SearchIcon fontSize="small" />
                         </IconButton>
                     </Tooltip>
-                    {!props.peoplePage &&
+                    {!props.peoplepage &&
                         <InputBase
                             sx={{ ml: 1, flex: 1 }}
                             placeholder="Search People"
@@ -86,12 +86,12 @@ export const DashboardNavbar = (props) => {
                         />}
                     {/* <Box sx={{ flexGrow: 1 }} /> */}
                 </Toolbar>
-                {!props.peoplePage && (peopleListValue || []).length > 0 && <ClickAwayListener onClickAway={() => { setHideSearchPane(true) }}>
+                {!props.peoplepage && (peopleListValue || []).length > 0 && <ClickAwayListener onClickAway={() => { setHideSearchPane(true) }}>
                     <List sx={{ width: '100%' }}>
                         {!hideSearchPane && peopleListValue.map(d => (<ListItem key={d.uri}
                             component="div"
                             disablePadding>
-                            <ListItemButton onClick={() => { Router.push(`/person?uri=${d.uri}`); setHideSearchPane(true); }}>
+                            <ListItemButton onClick={() => { Router.push(`/person?uri=${d.uri}`).catch(console.error); setHideSearchPane(true); }}>
                                 <ListItemText sx={{ color: "black" }}
                                     primary={d?.name?.fa || ""} />
                             </ListItemButton>

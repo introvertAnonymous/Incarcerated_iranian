@@ -24,7 +24,7 @@ router = APIRouter()
 es = get_es_client()
 
 
-def get_query(search):
+def get_search_query(search):
     return {
         "multi_match": {
             "query": search,
@@ -42,6 +42,14 @@ def get_query(search):
     }
 
 
+def get_status_filter_query(value):
+    return {"term": {"status.value": value}}
+
+
+def merge_query(q1, q2, op="must"):
+    return {"bool": {op: [q1, q2]}}
+
+
 @router.get("/item", response_model=Item)
 async def get_item(
     uri: str,
@@ -55,10 +63,32 @@ async def get_item(
         return {"Error": str(e)}
 
 
+@router.get("/next_item", response_model=Item)
+async def get_item(
+    uri: str,
+    # current_user: User = Depends(deps.get_current_user),
+    session: AsyncSession = Depends(deps.get_session),
+):
+
+    query = {"range": {"uri": {"gt": uri}}}
+    sort = [{"uri": {"order": "asc"}}]
+    try:
+        item = (
+            es.search(index="people", query=query, size=1, sort=sort)
+            .body.get("hits", {})
+            .get("hits", [{}])[0]
+        )
+        if item:
+            return Item.parse_obj(item["_source"])
+    except Exception as e:
+        return {"Error": str(e)}
+
+
 @router.get("/items", response_model=List[Item])
 async def get_items(
     size: int,
     search: str = "",
+    status_filter: str = "",
     offset: int = 0,
     sort: str = None,
     asc: bool = True,
@@ -73,7 +103,11 @@ async def get_items(
         sort_key = None
     query = None
     if search:
-        query = get_query(search)
+        query = get_search_query(search)
+    if status_filter:
+        q2 = get_status_filter_query(status_filter)
+        query = merge_query(query, q2) if query else q2
+
     selected = [
         d.get("_source")
         for d in es.search(
@@ -94,7 +128,7 @@ async def get_count_items(
 ):
     query = None
     if search:
-        query = get_query(search)
+        query = get_search_query(search)
     count = (
         es.search(
             index="people",

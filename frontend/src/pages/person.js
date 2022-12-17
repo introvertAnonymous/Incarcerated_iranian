@@ -17,7 +17,7 @@ const Page = () => {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Origin': '',
-        'Host': 'localhost:8000',
+        'Host': process.env.NEXT_PUBLIC_API_URL.replace("http://", "").replace("https://", ""),
       },
     };
     if (uri) {

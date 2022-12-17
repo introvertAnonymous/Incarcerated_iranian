@@ -32,7 +32,7 @@ const Page = () => {
 }
 
 Page.getLayout = (page) => (
-  <DashboardLayout peoplePage={1}>
+  <DashboardLayout peoplepage={1}>
     {page}
   </DashboardLayout>
 );

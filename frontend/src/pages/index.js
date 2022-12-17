@@ -4,10 +4,14 @@ import { InPrisons } from '../components/dashboard/in-prisons';
 import { DashboardLayout } from '../components/dashboard-layout';
 import { useEffect, useState } from 'react';
 import { CityDistribution } from '../components/dashboard/cityDistribution';
+import { PeopleListResults } from '../components/people-list-results';
+import { useRecoilState } from 'recoil';
+import { statusFilter } from "../atoms/statusFilter";
 
 const Page = () => {
   const [stats, setStats] = useState([]);
   const [cityDist, setCityDist] = useState();
+  const [statusFilterValue, setStatusFilterValue] = useRecoilState(statusFilter);
   useEffect(() => {
     const options = {
       method: 'GET',
@@ -15,16 +19,16 @@ const Page = () => {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Origin': '',
-        'Host': 'localhost:8000',
+        'Host': process.env.NEXT_PUBLIC_API_URL.replace("http://", "").replace("https://", ""),
       },
     };
 
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/stats`, options = options)
       .then(response => response.json())
-      .then(data => { setStats(data); });
+      .then(data => { setStats(data); }).catch(err => console.error("error in stats", err));
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/city_dist`, options = options)
       .then(response => response.json())
-      .then(data => { setCityDist(data); });
+      .then(data => { setCityDist(data); }).catch(err => console.error("error in city_dist", err));
   }, []);
   return (
     <>
@@ -47,22 +51,27 @@ const Page = () => {
             container
             spacing={3}
           >
-            {stats.slice(0, 3).map(s => (<Grid
+            {stats.slice(0, 4).map(s => (<Grid
               item
               key={s.key}
               lg={3}
               sm={6}
-              xl={3}
               xs={12}
             >
-              <InPrisons name={s.key}
+              <InPrisons sx={{ border: statusFilterValue === s.key ? "inset" : "hidden", cursor: "pointer" }}
+                name={s.key}
+                onClick={() => { statusFilterValue === s.key ? setStatusFilterValue("") : setStatusFilterValue(s.key) }}
                 value={s.doc_count} />
             </Grid>))}
+            <Grid item
+              md={12}
+              xs={12}>
+              <PeopleListResults />
+            </Grid>
             <Grid
               item
               lg={8}
               md={12}
-              xl={9}
               xs={12}
             >
               {cityDist && <CityDistribution prison={cityDist.prison}

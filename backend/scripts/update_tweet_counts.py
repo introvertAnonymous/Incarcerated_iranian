@@ -9,6 +9,7 @@ from incarcerated_api.utils.elastic import (
     get_es_client,
     insert_array_to_elastic,
 )
+from incarcerated_api.enums import StatusEnum
 from tqdm import tqdm
 
 
@@ -23,6 +24,8 @@ for data in pbar:
     pbar.set_description(str(data["uri"]))
     hashtag = get_query_hashtag(data)
     if len(hashtag) < 3:
+        continue
+    if (data.get("status") or {}).get("value") == StatusEnum.FREE:
         continue
     # print("hashtag", hashtag)
     hists = get_count_hist(" ".join(hashtag.split()))
