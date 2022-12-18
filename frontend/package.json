@@ -26,6 +26,7 @@
     "chart.js": "3.9.1",
     "date-fns": "2.29.3",
     "formik": "2.2.9",
+    "jalali-react-datepicker": "^1.2.1",
     "next": "12.3.0",
     "nprogress": "0.2.0",
     "prop-types": "15.8.1",

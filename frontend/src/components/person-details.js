@@ -19,6 +19,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import SaveIcon from '@mui/icons-material/Save';
+import { DatePicker } from "jalali-react-datepicker";
 
 import Chip from '@mui/material/Chip';
 import { Wikidata as WikidataLogo } from '../icons/wikidata'
@@ -32,12 +33,6 @@ import { genders, stauses } from "./constants"
 
 
 
-// const genders = [{ id: "Q6581097", value: { en: "male", fa: "مذکر" } }, { id: "Q6581072", value: { en: "female", fa: "مؤنث" } }, { id: "unknown", value: { fa: "نامعلوم", en: "Unknown" } }]
-// const stauses = [{ id: "زندانی", value: { en: "In Jail", fa: "زندانی" } },
-// { id: "آزاد شد", value: { en: "Free", fa: "آزاد" } },
-// { id: "مفقود", value: { fa: "نامعلوم", en: "Unknown" } },
-// { id: "در بازداشت کشته شد", value: { fa: "در بازداشت کشته شد", en: "Killed in prison" } },
-// { id: "حکم اعدام", value: { fa: "حکم اعدام", en: "Death Penalty" } }]
 const ListItem = styled('li')(({ theme }) => ({
   margin: theme.spacing(0.5),
 }));
@@ -182,7 +177,7 @@ export const PersonDetails = (props) => {
         'Host': process.env.NEXT_PUBLIC_API_URL.replace("http://", "").replace("https://", ""),
         'Authorization': `Bearer ${fetchToken()}`,
       },
-      body: JSON.stringify({ ...values, detention_datetime: values.detention_datetime ? new Date(values.detention_datetime) : null })
+      body: JSON.stringify({ ...values, detention_datetime: values.detention_datetime ? new Date(new Date(values.detention_datetime).setHours(12)) : null })
     };
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/update`, options = options,)
       .then(response => response.json())
@@ -208,8 +203,6 @@ export const PersonDetails = (props) => {
       justifyContent: 'space-between',
       alignItems: 'start',
       flexDirection: "row",
-      // flexWrap: "wrap"
-      // width: "100%"
     }}>
       <Box
         maxWidth={"md"}
@@ -429,6 +422,18 @@ export const PersonDetails = (props) => {
                           value={values.detention_datetime}
                           onChange={handleDetentionDatetime}
                           renderInput={(params) => <TextField {...params} />}
+                        />
+                      </Grid>
+                      <Grid
+                        item
+                        md={3}
+                        xs={12}
+                      >
+                        <DatePicker
+                          timePicker={false}
+                          label="تاریخ بازداشت"
+                          value={values.detention_datetime || undefined}
+                          onClickSubmitButton={(event) => { console.log("evemt", new Date(event.value._d)); handleDetentionDatetime(event.value._d) }}
                         />
                       </Grid>
                     </Grid>
