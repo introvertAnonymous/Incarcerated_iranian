@@ -9,6 +9,7 @@ import {
   CardHeader,
   Divider,
   Grid,
+  IconButton,
   Snackbar,
   TextField,
   Typography
@@ -19,6 +20,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import SaveIcon from '@mui/icons-material/Save';
+import AddIcon from '@mui/icons-material/Add';
 import { DatePicker } from "jalali-react-datepicker";
 
 import Chip from '@mui/material/Chip';
@@ -50,7 +52,9 @@ export const PersonDetails = (props) => {
   if (props.values?.uri !== values?.uri) {
     setValues(props.values)
   }
+
   const [newHashtag, setNewHashtag] = useState("");
+  const [newTag, setNewTag] = useState("");
   const [newTweet, setNewTweet] = useState("");
 
   const handleDetentionDatetime = (value) => { setValues({ ...values, detention_datetime: value }) }
@@ -97,8 +101,11 @@ export const PersonDetails = (props) => {
     setValues({ ...values, status: { value: c } });
 
   }
-  const handleDelete = (data) => {
-    setValues({ ...values, hashtags: values.hashtags.filter(k => k !== data) })
+  const handleDeleteHashtag = (data) => {
+    setValues({ ...values, hashtags: values.hashtags?.filter(k => k !== data) })
+  }
+  const handleDeleteTag = (data) => {
+    setValues({ ...values, tags: values.tags?.filter(k => k !== data) })
   }
 
   const handleClick = (wikidata) => {
@@ -110,6 +117,16 @@ export const PersonDetails = (props) => {
       setValues(past => ({ ...past, hashtags: [...(past.hashtags || []), newHashtag] }));
       setNewHashtag("");
 
+    }
+  }
+
+  const handleNewTag = (event) => {
+    if (event.key === "Enter") {
+      try {
+        event.preventDefault();
+      } catch { }
+      setValues(past => ({ ...past, tags: Array.from(new Set([...(past.tags || []), newTag])) }));
+      setNewTag("");
     }
   }
 
@@ -450,6 +467,53 @@ export const PersonDetails = (props) => {
                     aria-controls="panel1a-tweet-hist"
                     id="tweet-hashtags-accordion"
                   >
+                    <Typography>Tags</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <TextField label="Tags"
+                      placeholder="..."
+                      name="tags"
+                      onChange={(event) => setNewTag(event.target.value)}
+                      value={newTag}
+                      onKeyDown={handleNewTag}
+                      variant="outlined" />
+                    <IconButton color="primary"
+                      onClick={() => handleNewTag({ key: "Enter" })}
+                      aria-label="Example">
+                      <AddIcon />
+                    </IconButton>
+                    <Paper
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'left',
+                        flexWrap: 'wrap',
+                        listStyle: 'none',
+                        p: 0.5,
+                        m: 0,
+                      }}
+                      component="ul"
+                    >
+                      {values.tags?.map(data => <ListItem key={data}>
+                        <Chip
+                          label={data}
+                          onDelete={() => handleDeleteTag(data)}
+                        />
+                      </ListItem>)
+                      }
+                    </Paper>
+                  </AccordionDetails>
+                </Accordion>
+              </Grid>
+              <Grid
+                item
+                xs={12}
+              >
+                <Accordion>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1a-tweet-hist"
+                    id="tweet-hashtags-accordion"
+                  >
                     <Typography>Twitter Hashtags</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
@@ -474,7 +538,7 @@ export const PersonDetails = (props) => {
                       {values.hashtags?.map(data => <ListItem key={data}>
                         <Chip
                           label={data}
-                          onDelete={() => handleDelete(data)}
+                          onDelete={() => handleDeleteHashtag(data)}
                         />
                       </ListItem>)
                       }
@@ -539,6 +603,65 @@ export const PersonDetails = (props) => {
                   </AccordionDetails>
                 </Accordion>
               </Grid>
+              {/* <Grid
+                item
+                xs={12}
+              >
+                <Accordion>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1a-news"
+                    id="news-header"
+                  >
+                    <Typography>News</Typography>
+                  </AccordionSummary>
+
+                  <AccordionDetails>
+                    <Box sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      p: 2,
+                      flexDirection: "row"
+                    }}
+                    >
+                      <TextField
+                        sx={{ width: "20%" }}
+                        label="News title"
+                        name="news-title"
+                        // onChange={(event) => { setNewTweet(event.target.value) }}
+                        // onKeyDown={handleAddNewTweet}
+                        // value={newTweet}
+                        variant="outlined"
+                      />
+                      <TextField
+                        sx={{ width: "60%" }}
+                        label="News link"
+                        name="news-link"
+                        // onChange={(event) => { setNewTweet(event.target.value) }}
+                        // onKeyDown={handleAddNewTweet}
+                        // value={newTweet}
+                        variant="outlined"
+                      />
+
+                      <IconButton color="primary"
+                        aria-label="Example">
+                        <AddIcon />
+                      </IconButton>
+                    </Box>
+                    <Box
+                      md={6}
+                      xs={12}
+                      // maxWidth="100%"
+                      sx={{ display: 'flex', flexGrow: 1, flexDirection: "row", justifyContent: "space-between" }}>
+                      {(values.tweets || []).map(tid => <Grid item
+                        md={6}
+                        xs={12}
+                        key={tid}><TwitterTweetEmbed
+                          tweetId={tid} /> </Grid>)}
+                    </Box>
+                  </AccordionDetails>
+                </Accordion>
+              </Grid> */}
             </Grid>
           </CardContent>
           <Divider />

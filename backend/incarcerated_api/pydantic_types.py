@@ -62,6 +62,7 @@ class ItemCreate(BaseModel):
     hashtags: Optional[List[str]]
     conviction: Optional[str]
     decision: Optional[str]
+    tags: Optional[List[str]]
 
 
 class Item(ItemCreate):

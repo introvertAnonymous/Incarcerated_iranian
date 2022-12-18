@@ -24,6 +24,12 @@
         "keyword": { "type": "keyword" }
       }
     },
+    "tags": {
+      "type": "text",
+      "fields": {
+        "keyword": { "type": "keyword" }
+      }
+    },
     "gender": {
       "properties": {
         "id": { "type": "keyword" },
