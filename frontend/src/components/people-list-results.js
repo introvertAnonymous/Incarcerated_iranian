@@ -1,22 +1,23 @@
 import { useEffect, useState } from 'react';
 import NextLink from 'next/link';
-import PerfectScrollbar from 'react-perfect-scrollbar';
 
 import {
   Box,
   Card,
+  Chip,
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TablePagination,
   TableRow,
   TableSortLabel,
-  Typography
 } from '@mui/material';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { searchPeople } from '../atoms/searchPeople';
 import { statusFilter } from '../atoms/statusFilter';
+import { tagFilter } from '../atoms/tagFilter';
 
 export const PeopleListResults = ({ ...rest }) => {
   const [limit, setLimit] = useState(10);
@@ -27,6 +28,7 @@ export const PeopleListResults = ({ ...rest }) => {
   const [sortColumn, setSortColumn] = useState("recent_tweets_count");
   const search = useRecoilValue(searchPeople);
   const statusFilterValue = useRecoilValue(statusFilter);
+  const [tagFilterValue, setTagFilterValue] = useRecoilState(tagFilter);
   useEffect(() => {
     const options = {
       method: 'GET',
@@ -44,19 +46,19 @@ export const PeopleListResults = ({ ...rest }) => {
 
   useEffect(() => {
     const options = {
-      method: 'GET',
+      method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Origin': '',
         'Host': process.env.NEXT_PUBLIC_API_URL.replace("http://", "").replace("https://", ""),
       },
+      body: JSON.stringify({ offset: page * limit, sort: sortColumn, asc: sortDirection == "asc", search: search, status_filter: statusFilterValue, tag_filter: tagFilterValue })
     };
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/items?size=${limit}&offset=${page * limit}&sort=${sortColumn}&asc=${sortDirection == 'asc'}&search=${search}&status_filter=${statusFilterValue}`, options = options)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/items?size=${limit}`, options = options)
       .then(response => response.json())
       .then(data => { setPeople(data); }).catch(err => console.error("error in items", err))
-  }, [limit, page, sortDirection, search, sortColumn, statusFilterValue])
-
+  }, [limit, page, sortDirection, search, sortColumn, statusFilterValue, tagFilterValue])
   const handleLimitChange = (event) => {
     setLimit(event.target.value);
   };
@@ -76,9 +78,9 @@ export const PeopleListResults = ({ ...rest }) => {
 
   return (
     <Card {...rest}>
-      <PerfectScrollbar>
+      <TableContainer>
         <Box sx={{ minWidth: 1050 }}>
-          <Table>
+          <Table size='medium'>
             <TableHead>
               <TableRow>
                 <TableCell>
@@ -106,6 +108,12 @@ export const PeopleListResults = ({ ...rest }) => {
                     Conviction
                   </TableSortLabel>
                 </TableCell>
+                <TableCell onClick={() => handleChangeSortDirection("tags")}>
+                  <TableSortLabel active={sortColumn === "tags"}
+                    direction={sortDirection}>
+                    Tags
+                  </TableSortLabel>
+                </TableCell>
                 <TableCell onClick={() => handleChangeSortDirection("recent_tweets_count")}>
                   <TableSortLabel
                     active={sortColumn === "recent_tweets_count"}
@@ -130,19 +138,26 @@ export const PeopleListResults = ({ ...rest }) => {
                     style={{ cursor: "pointer" }}
                   >
                     <TableCell>
-                      {person.name.fa}
+                      {person.name.en ? person.name.en + " - " + person.name.fa : person.name.fa}
                     </TableCell>
                     <TableCell>
-                      {person.status.value || "نامعلوم"}
+                      {person.status.value || "-"}
                     </TableCell>
                     <TableCell>
-                      {person.city || "نامعلوم"}
+                      {person.city || "-"}
                     </TableCell>
                     <TableCell>
-                      {person.decision || "نامعلوم"}
+                      {person.decision || "-"}
                     </TableCell>
                     <TableCell>
-                      {person.conviction || "نامعلوم"}
+                      {person.conviction || "-"}
+                    </TableCell>
+                    <TableCell>
+                      {(person.tags || []).map((tag) => (<Chip key={tag}
+                        onClick={(event) => { event.preventDefault(); tagFilterValue === tag ? setTagFilterValue("") : setTagFilterValue(tag); }}
+                        label={tag}
+                        sx={{ zIndex: 999 }}
+                        variant={tagFilterValue === tag ? "filled" : "outlined"} />))}
                     </TableCell>
                     <TableCell>
                       {person.recent_tweets_count}
@@ -154,7 +169,7 @@ export const PeopleListResults = ({ ...rest }) => {
 
           </Table>
         </Box>
-      </PerfectScrollbar>
+      </TableContainer>
       <TablePagination
         component="div"
         count={countPeople}

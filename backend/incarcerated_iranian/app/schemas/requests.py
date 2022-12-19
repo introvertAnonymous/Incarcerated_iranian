@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, EmailStr
 
 
@@ -17,3 +18,12 @@ class UserUpdatePasswordRequest(BaseRequest):
 class UserCreateRequest(BaseRequest):
     email: EmailStr
     password: str
+
+
+class ItemCondition(BaseRequest):
+    search: Optional[str] = ""
+    status_filter: Optional[str] = ""
+    tag_filter: Optional[str] = ""
+    offset: Optional[int] = 0
+    sort: Optional[str] = ""
+    asc: Optional[bool] = True

@@ -1,3 +1,4 @@
+from typing import List
 from incarcerated_api.utils.elastic import get_es_client
 import pandas as pd
 from incarcerated_api.utils import get_uri, remove_special_chars
@@ -32,6 +33,7 @@ def get_item_from_csv(row: pd.Series) -> Item:
     uri = get_uri(name, city)
     conviction = row[coloumns[5]] or None
     decision = row[coloumns[6]] or None
+    activity = remove_special_chars(row[coloumns[3]] or "").strip()
     if conviction:
         conviction = remove_special_chars(conviction).strip()
     if decision:
@@ -42,6 +44,11 @@ def get_item_from_csv(row: pd.Series) -> Item:
         status = None
     try:
         doc = es.get(index=ELASTIC_INDEX, id=uri)
+        tags: List[str] = doc["_source"].get("tags", [])
+        if activity:
+            tags.append(activity)
+        tags = list(set(tags))
+        doc["_source"]["tags"] = tags
         if (
             doc["_source"]["status"]["value"] != status.value.value
             or decision != doc["_source"].get("decision")
@@ -50,9 +57,9 @@ def get_item_from_csv(row: pd.Series) -> Item:
             doc["_source"]["status"]["value"] = status.value.value
             doc["_source"]["decision"] = decision
             doc["_source"]["conviction"] = conviction
-            es.update(index=ELASTIC_INDEX, id=doc["_id"], doc=doc["_source"])
+        es.update(index=ELASTIC_INDEX, id=doc["_id"], doc=doc["_source"])
+        #     es.update(index=ELASTIC_INDEX, id=doc["_id"], doc=doc["_source"])
     except:
-        activity = row[coloumns[3]]
         info = row[coloumns[4]]
         detention_date = None
         detention = row[coloumns[7]]
@@ -78,6 +85,7 @@ def get_item_from_csv(row: pd.Series) -> Item:
         )
         description = " ".join(description.split()).strip()
         status = Status(value=status_dict[row[coloumns[2]]])
+        tags = [activity] if activity else []
         item = Item(
             uri=uri,
             name=Label(fa=name),
@@ -87,6 +95,7 @@ def get_item_from_csv(row: pd.Series) -> Item:
             description=Label(fa=description),
             conviction=conviction,
             decision=decision,
+            tags=tags,
             detention_datetime=detention_date,
             hashtags=["_".join(name.split())],
         )

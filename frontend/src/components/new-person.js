@@ -133,7 +133,7 @@ export const NewPerson = (props) => {
     };
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/create`, options = options,)
       .then(response => response.json())
-      .then(data => { handleSaveClick("success"); Router.push(`/person?uri=${data.uri}`).catch(console.error) }).catch(err => { console.log(values); console.error(err); handleSaveClick("fail"); })
+      .then(data => { handleSaveClick("success"); Router.push(`/person?uri=${data.uri}`).catch(console.error) }).catch(err => { console.error(values); console.error(err); handleSaveClick("fail"); })
   }
   useEffect(() => {
     const options = {

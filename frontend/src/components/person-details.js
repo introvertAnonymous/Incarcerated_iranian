@@ -449,8 +449,8 @@ export const PersonDetails = (props) => {
                         <DatePicker
                           timePicker={false}
                           label="تاریخ بازداشت"
-                          value={values.detention_datetime || undefined}
-                          onClickSubmitButton={(event) => { console.log("evemt", new Date(event.value._d)); handleDetentionDatetime(event.value._d) }}
+                          value={values.detention_datetime ? new Date(values.detention_datetime) : undefined}
+                          onClickSubmitButton={(event) => { handleDetentionDatetime(event.value._d) }}
                         />
                       </Grid>
                     </Grid>
@@ -706,7 +706,7 @@ export const PersonDetails = (props) => {
             <Alert onClose={handleSaveClose}
               severity="error"
               sx={{ width: '100%' }}>
-              Couldnt store into db. Check the console!
+              Could not store into db. Check the console!
             </Alert>
           </Snackbar>
         </Card>

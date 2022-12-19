@@ -23,15 +23,16 @@ export const DashboardNavbar = (props) => {
     useEffect(() => {
         if (searchValue) {
             const options = {
-                method: 'GET',
+                method: 'POST',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'Origin': '',
                     'Host': process.env.NEXT_PUBLIC_API_URL.replace("http://", "").replace("https://", ""),
                 },
+                body: JSON.stringify({ search: searchValue })
             };
-            fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/items?size=5&search=${searchValue}`, options = options)
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/items?size=5`, options = options)
                 .then(response => response.json())
                 .then(data => { setPeopleListValue(data); })
         } else {

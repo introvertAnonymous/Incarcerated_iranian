@@ -1,8 +1,9 @@
 from datetime import datetime
 import json
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter, Depends
 from incarcerated_api.utils.twitter import get_count_hist, get_query_hashtag
+from incarcerated_iranian.app.schemas.requests import ItemCondition
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api import deps
@@ -42,12 +43,21 @@ def get_search_query(search):
     }
 
 
+def get_filter_query(field, value):
+    return {"term": {field: value}}
+
+
 def get_status_filter_query(value):
-    return {"term": {"status.value": value}}
+    return get_filter_query("status.value", value)
 
 
-def merge_query(q1, q2, op="must"):
-    return {"bool": {op: [q1, q2]}}
+def get_tag_filter_query(value):
+    return get_filter_query("tags.keyword", value)
+
+
+def merge_queries(queries, op="must"):
+    if queries:
+        return {"bool": {op: queries}}
 
 
 @router.get("/item", response_model=Item)
@@ -84,34 +94,33 @@ async def get_item(
         return {"Error": str(e)}
 
 
-@router.get("/items", response_model=List[Item])
+# @router.get("/items", response_model=List[Item])
+@router.post("/items", response_model=List[Item])
 async def get_items(
     size: int,
-    search: str = "",
-    status_filter: str = "",
-    offset: int = 0,
-    sort: str = None,
-    asc: bool = True,
+    params: Optional[ItemCondition] = ItemCondition(),
     # current_user: User = Depends(deps.get_current_user),
     session: AsyncSession = Depends(deps.get_session),
 ):
-    if sort and not search:
+    if (sort := params.sort) and not params.search:
         if Item.__fields__[sort].type_ == str:
             sort += ".keyword"
-        sort_key = [{sort: {"order": "asc" if asc else "desc"}}]
+        sort_key = [{sort: {"order": "asc" if params.asc else "desc"}}]
     else:
         sort_key = None
-    query = None
-    if search:
-        query = get_search_query(search)
-    if status_filter:
-        q2 = get_status_filter_query(status_filter)
-        query = merge_query(query, q2) if query else q2
+    queries = []
+    if search := params.search:
+        queries.append(get_search_query(search))
+    if status_filter := params.status_filter:
+        queries.append(get_status_filter_query(status_filter))
+    if tag_filter := params.tag_filter:
+        queries.append(get_tag_filter_query(tag_filter))
 
+    query = merge_queries(queries)
     selected = [
         d.get("_source")
         for d in es.search(
-            index="people", size=size, from_=offset, sort=sort_key, query=query
+            index="people", size=size, from_=params.offset, sort=sort_key, query=query
         )
         .body.get("hits", {})
         .get("hits", [])
