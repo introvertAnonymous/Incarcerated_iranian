@@ -9,11 +9,14 @@ import { useRecoilState, useSetRecoilState } from 'recoil';
 import { statusFilter } from "../atoms/statusFilter";
 import { authToken } from '../atoms/authToken';
 import { fetchToken } from '../lib/auth';
+import { tagFilter } from '../atoms/tagFilter';
 
 const Page = () => {
   const [stats, setStats] = useState([]);
+  const [tagStats, setTagStats] = useState([]);
   const [cityDist, setCityDist] = useState();
   const [statusFilterValue, setStatusFilterValue] = useRecoilState(statusFilter);
+  const [tagFilterValue, setTagFilterValue] = useRecoilState(tagFilter);
   const setAuthTokenValue = useSetRecoilState(authToken);
   useEffect(() => { setAuthTokenValue(fetchToken()) });
   useEffect(() => {
@@ -33,6 +36,10 @@ const Page = () => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/city_dist`, options = options)
       .then(response => response.json())
       .then(data => { setCityDist(data); }).catch(err => console.error("error in city_dist", err));
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/tag_stats`, options = options)
+      .then(response => response.json())
+      .then(data => { setTagStats(data); }).catch(err => console.error("error in tag stats", err));
+
   }, []);
   return (
     <>
@@ -65,6 +72,18 @@ const Page = () => {
               <InPrisons sx={{ border: statusFilterValue === s.key ? "inset" : "hidden", cursor: "pointer" }}
                 name={s.key}
                 onClick={() => { statusFilterValue === s.key ? setStatusFilterValue("") : setStatusFilterValue(s.key) }}
+                value={s.doc_count} />
+            </Grid>))}
+            {tagStats.slice(0, 4).map(s => (<Grid
+              item
+              key={s.key}
+              lg={3}
+              sm={6}
+              xs={12}
+            >
+              <InPrisons sx={{ border: tagFilterValue === s.key ? "inset" : "hidden", cursor: "pointer" }}
+                name={s.key}
+                onClick={() => { tagFilterValue === s.key ? setTagFilterValue("") : setTagFilterValue(s.key) }}
                 value={s.doc_count} />
             </Grid>))}
             <Grid item

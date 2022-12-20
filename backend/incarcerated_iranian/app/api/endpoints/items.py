@@ -2,7 +2,11 @@ from datetime import datetime
 import json
 from typing import List, Optional
 from fastapi import APIRouter, Depends
-from incarcerated_api.utils.twitter import get_count_hist, get_query_hashtag
+from incarcerated_api.utils.twitter import (
+    get_count_hist,
+    get_query_hashtag,
+    merge_tweet_hists,
+)
 from app.schemas.requests import ItemCondition
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -17,7 +21,7 @@ from incarcerated_api.pydantic_types import (
 )
 from incarcerated_api.constants import ELASTIC_INDEX
 from incarcerated_api.utils.elastic import get_es_client
-from incarcerated_api.utils import get_uri
+from incarcerated_api.utils import get_uri, get_today
 
 
 router = APIRouter()
@@ -58,6 +62,17 @@ def get_tag_filter_query(value):
 def merge_queries(queries, op="must"):
     if queries:
         return {"bool": {op: queries}}
+
+
+def get_query_param(params):
+    queries = []
+    if search := params.search:
+        queries.append(get_search_query(search))
+    if status_filter := params.status_filter:
+        queries.append(get_status_filter_query(status_filter))
+    if tag_filter := params.tag_filter:
+        queries.append(get_tag_filter_query(tag_filter))
+    return merge_queries(queries)
 
 
 @router.get("/item", response_model=Item)
@@ -108,15 +123,7 @@ async def get_items(
         sort_key = [{sort: {"order": "asc" if params.asc else "desc"}}]
     else:
         sort_key = None
-    queries = []
-    if search := params.search:
-        queries.append(get_search_query(search))
-    if status_filter := params.status_filter:
-        queries.append(get_status_filter_query(status_filter))
-    if tag_filter := params.tag_filter:
-        queries.append(get_tag_filter_query(tag_filter))
-
-    query = merge_queries(queries)
+    query = get_query_param(params)
     selected = [
         d.get("_source")
         for d in es.search(
@@ -130,14 +137,13 @@ async def get_items(
 
 
 @router.get("/count", response_model=int)
+@router.post("/count", response_model=int)
 async def get_count_items(
-    search: str = "",
+    params: Optional[ItemCondition] = ItemCondition(),
     # current_user: User = Depends(deps.get_current_user),
     session: AsyncSession = Depends(deps.get_session),
 ):
-    query = None
-    if search:
-        query = get_search_query(search)
+    query = get_query_param(params)
     count = (
         es.search(
             index="people",
@@ -153,7 +159,7 @@ async def get_count_items(
 
 
 @router.get("/stats", response_model=List[StatTerm])
-async def get_count_items(
+async def get_status_stats(
     # current_user: User = Depends(deps.get_current_user),
     session: AsyncSession = Depends(deps.get_session),
 ):
@@ -163,8 +169,20 @@ async def get_count_items(
     return stats
 
 
+@router.get("/tag_stats", response_model=List[StatTerm])
+async def get_tag_stats(
+    # current_user: User = Depends(deps.get_current_user),
+    session: AsyncSession = Depends(deps.get_session),
+):
+    aggs = {"tags": {"terms": {"field": "tags.keyword", "size": 5}}}
+    query = {"bool": {"must_not": [{"match": {"status.value": "آزاد شد"}}]}}
+    data = es.search(index=ELASTIC_INDEX, size=0, aggregations=aggs, query=query)
+    tags = data.body.get("aggregations", {}).get("tags", {}).get("buckets")
+    return tags
+
+
 @router.get("/city_dist", response_model=CityDist)
-async def get_count_items(
+async def get_city_dist(
     # current_user: User = Depends(deps.get_current_user),
     session: AsyncSession = Depends(deps.get_session),
 ):
@@ -207,6 +225,50 @@ async def update_item(
     session: AsyncSession = Depends(deps.get_session),
 ):
     es.update(index="people", id=item.uri, doc=json.loads(item.json()))
+    return item
+
+
+@router.post("/update_tweet_hist", response_model=Item)
+async def update_tweet_hist(
+    uri: str,
+    current_user: User = Depends(deps.get_current_user),
+    session: AsyncSession = Depends(deps.get_session),
+):
+    data = es.get(index=ELASTIC_INDEX, id=uri).body["_source"]
+    hashtag = get_query_hashtag(data)
+    hists = get_count_hist(" ".join(hashtag.split()))
+    data["recent_tweets_hist"] = merge_tweet_hists(
+        (data.get("recent_tweets_hist") or []), hists
+    )
+    data["recent_tweets_count"] = sum(
+        [d["tweet_count"] for d in data["recent_tweets_hist"]]
+    )
+    if data["recent_tweets_count"] > 0:
+        hists = get_count_hist(hashtag, is_verified=True)
+        data["recent_tweets_hist_verified"] = merge_tweet_hists(
+            data.get("recent_tweets_hist_verified", []) or [], hists
+        )
+        data["recent_tweets_count_verified"] = sum(
+            [
+                d["tweet_count"]
+                for d in data.get("recent_tweets_hist_verified", []) or []
+            ]
+        )
+    data["last_updated"] = get_today()
+    item = Item.parse_obj(data)
+    es.update(
+        index=ELASTIC_INDEX,
+        id=item.uri,
+        doc={
+            key: data[key]
+            for key in [
+                "recent_tweets_hist",
+                "recent_tweets_count",
+                "recent_tweets_count_verified",
+                "recent_tweets_hist_verified",
+            ]
+        },
+    )
     return item
 
 

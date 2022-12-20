@@ -21,6 +21,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import SaveIcon from '@mui/icons-material/Save';
 import AddIcon from '@mui/icons-material/Add';
+import TwitterIcon from '@mui/icons-material/Twitter';
 import { DatePicker } from "jalali-react-datepicker";
 
 import Chip from '@mui/material/Chip';
@@ -31,7 +32,7 @@ import Paper from '@mui/material/Paper';
 import { fetchToken } from '../lib/auth';
 import { TwitterTweetEmbed } from 'react-twitter-embed';
 import { DesktopDatePicker } from '@mui/x-date-pickers';
-import { genders, stauses } from "./constants"
+import { dayMiliSec, genders, stauses } from "./constants"
 
 
 
@@ -112,6 +113,9 @@ export const PersonDetails = (props) => {
     window.open("https://www.wikidata.org/wiki/" + wikidata);
   };
   const handleNewHashtag = (event) => {
+    if (!newHashtag) {
+      return;
+    }
     if (event.key === "Enter") {
       event.preventDefault();
       setValues(past => ({ ...past, hashtags: [...(past.hashtags || []), newHashtag] }));
@@ -121,6 +125,9 @@ export const PersonDetails = (props) => {
   }
 
   const handleNewTag = (event) => {
+    if (!newTag) {
+      return;
+    }
     if (event.key === "Enter") {
       try {
         event.preventDefault();
@@ -198,7 +205,7 @@ export const PersonDetails = (props) => {
     };
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/update`, options = options,)
       .then(response => response.json())
-      .then(data => { handleSaveClick("success"); }).catch(err => { console.error(err); handleSaveClick("fail"); })
+      .then(data => { if (data.uri === values.uri) { handleSaveClick("success"); } else { handleSaveClick("fail"); } }).catch(err => { console.error(err); handleSaveClick("fail"); })
   }
   useEffect(() => {
     const options = {
@@ -214,6 +221,27 @@ export const PersonDetails = (props) => {
       .then(response => response.json())
       .then(data => { setTweetsId(data); }).catch(err => { console.error(err); })
   }, [values.hashtags])
+  const getTweetText = () => {
+    let persian = "صدای زندانیان بی صدا باشیم. "
+    persian += `${values.name.fa} `
+    if (values.city) {
+      persian += `شهروند ${values.city} `;
+    }
+    if (values.detention_datetime) {
+      const days = Math.round((new Date() - new Date(values.detention_datetime)) / dayMiliSec);
+      persian += `بیش از ${days} روز است که توسط ماموران ج.ا دستگیر شده است. `
+    }
+    if (values.description.fa) {
+      persian += values.description.fa
+    }
+    persian += "\n" + values.hashtags.map(d => `#${d}`).join(" ")
+    persian += `\nhttps://incarcerated-iranian.com/person?uri=${values.uri}`
+    return encodeURIComponent(persian);
+    // let english = "";
+    // if (values.name.en) {
+
+    // }
+  }
   return (
     <Box sx={{
       display: 'flex',
@@ -452,6 +480,18 @@ export const PersonDetails = (props) => {
                           value={values.detention_datetime ? new Date(values.detention_datetime) : undefined}
                           onClickSubmitButton={(event) => { handleDetentionDatetime(event.value._d) }}
                         />
+                      </Grid>
+                      <Grid
+                        item
+                        md={4}
+                        xs={12}
+                      >
+                        <Button variant="text"
+                          href={`http://twitter.com/intent/tweet?text=${getTweetText()}`}
+                          sx={{ p: 3 }}
+                          startIcon={<TwitterIcon />}>
+                          Be their voice with a tweet
+                        </Button>
                       </Grid>
                     </Grid>
                   </AccordionDetails>

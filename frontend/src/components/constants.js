@@ -4,3 +4,5 @@ export const stauses = [{ id: "زندانی", value: { en: "In Jail", fa: "زن�
 { id: "مفقود", value: { fa: "نامعلوم", en: "Unknown" } },
 { id: "در بازداشت کشته شد", value: { fa: "در بازداشت کشته شد", en: "Killed in prison" } },
 { id: "حکم اعدام", value: { fa: "حکم اعدام", en: "Death Penalty" } }]
+
+export const dayMiliSec = 86400000;

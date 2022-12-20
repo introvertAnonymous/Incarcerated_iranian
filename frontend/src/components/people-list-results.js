@@ -31,15 +31,16 @@ export const PeopleListResults = ({ ...rest }) => {
   const [tagFilterValue, setTagFilterValue] = useRecoilState(tagFilter);
   useEffect(() => {
     const options = {
-      method: 'GET',
+      method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Origin': '',
         'Host': process.env.NEXT_PUBLIC_API_URL.replace("http://", "").replace("https://", ""),
       },
+      body: JSON.stringify({ search })
     };
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/count?search=${search}`, options = options)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/items/count`, options = options)
       .then(response => response.json())
       .then(data => { setCountPeople(data); }).catch(err => console.error("error in count", err));
   }, [search]);
